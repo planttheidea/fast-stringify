@@ -17,7 +17,7 @@
   "bugs": {
     "url": "https://github.com/planttheidea/fast-stringify/issues"
   },
-  "description": "A blazing fast stringifier that safely handles all objects",
+  "description": "A blazing fast stringifier that safely handles circular objects",
   "devDependencies": {
     "ava": "^0.25.0",
     "babel-cli": "^6.26.0",

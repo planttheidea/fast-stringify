@@ -73,6 +73,7 @@ const specialObject = Object.assign({}, deepObject, {
 circularObject.deeply.nested.reference = circularObject;
 
 const packages = {
+  decircularize: (value) => JSON.stringify(require('decircularize')(value)),
   'fast-json-stable-stringify': require('fast-json-stable-stringify'),
   'fast-stringify': require('../lib').default,
   'json-cycle': (value) => JSON.stringify(require('json-cycle').decycle(value)),

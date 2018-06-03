@@ -1,1 +1,6 @@
-export default function copy<T>(object: T): T;
+export default function stringify(
+  object: any,
+  replacer?: Function,
+  indent?: number,
+  circularReplacer?: Function
+): string;
