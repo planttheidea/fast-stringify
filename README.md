@@ -41,7 +41,7 @@ Stringifies the object passed based on the parameters you pass. The only require
 
 * `replacer` => function to customize how the value for each key is stringified (see [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) for more details)
 * `indent` => number of spaces to indent the stringified object for pretty-printing (see [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) for more details)
-* `circularReplacer` => function to customize how the circular reference is stringified (defaults to `[ref-##])` where `##` is the reference count
+* `circularReplacer` => function to customize how the circular reference is stringified (defaults to `[ref-##]` where `##` is the reference count)
 
 ## Benchmarks
 
