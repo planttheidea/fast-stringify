@@ -29,7 +29,8 @@ const object = {
 
 object.deeply.recursive.object = object;
 
-console.log(stringify);
+console.log(stringify(object));
+// {"foo":"bar","deeply":{"recursive":{"object":"[ref-0]"}}}
 ```
 
 #### stringify
