@@ -80,6 +80,8 @@ const object = {
   uint8ClampedArray: new Uint8ClampedArray([1, 2, 3]),
   weakMap: new WeakMap().set({}, 7).set({foo: 3}, ['abc']),
   weakSet: new WeakSet().add({}).add({foo: 'bar'}),
+  doc: document,
+  win: window,
 
   ReactStatefulClass: StatefulComponent,
   ReactStatefulElement: <StatefulComponent />,
