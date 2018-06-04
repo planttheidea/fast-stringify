@@ -202,3 +202,13 @@ test('if special objects are handled with a custom circular replacer', (t) => {
     )
   );
 });
+
+test('if the window is handled', (t) => {
+  try {
+    index.default(window);
+
+    t.pass();
+  } catch (error) {
+    t.fail(error);
+  }
+});
