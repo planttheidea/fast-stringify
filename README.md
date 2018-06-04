@@ -55,7 +55,7 @@ _Small number of properties, all values are primitives_
 | fast-json-stable-stringify | 377,226             | 0.79%                    |
 | json-stringify-safe        | 293,797             | 0.85%                    |
 | json-stable-stringify      | 273,134             | 0.74%                    |
-| json-cycle                 | 197.671             | 0.79%                    |
+| json-cycle                 | 197,671             | 0.79%                    |
 | decircularize              | 132,988             | 0.84%                    |
 
 #### Complex objects
