@@ -51,12 +51,12 @@ _Small number of properties, all values are primitives_
 
 |                            | Operations / second | Relative margin of error |
 | -------------------------- | ------------------- | ------------------------ |
-| **fast-stringify**         | **620,309**         | **0.72%**                |
-| fast-json-stable-stringify | 377,226             | 0.79%                    |
-| json-stringify-safe        | 293,797             | 0.85%                    |
-| json-stable-stringify      | 273,134             | 0.74%                    |
-| json-cycle                 | 197.671             | 0.79%                    |
-| decircularize              | 132,988             | 0.84%                    |
+| **fast-stringify**         | **633,749**         | **0.85%**                |
+| fast-json-stable-stringify | 349,351             | 0.58%                    |
+| json-stringify-safe        | 292,456             | 0.75%                    |
+| json-stable-stringify      | 267,359             | 0.57%                    |
+| json-cycle                 | 193,863             | 0.71%                    |
+| decircularize              | 121,932             | 0.70%                    |
 
 #### Complex objects
 
@@ -64,12 +64,12 @@ _Large number of properties, values are a combination of primitives and complex 
 
 |                            | Operations / second | Relative margin of error |
 | -------------------------- | ------------------- | ------------------------ |
-| **fast-stringify**         | **103,217**         | **0.92%**                |
-| fast-json-stable-stringify | 59,009              | 0.94%                    |
-| json-cycle                 | 53,639              | 0.84%                    |
-| json-stringify-safe        | 53,112              | 0.70%                    |
-| json-stable-stringify      | 42,912              | 0.94%                    |
-| decircularize              | 22,649              | 0.85%                    |
+| **fast-stringify**         | **116,155**         | **0.67%**                |
+| fast-json-stable-stringify | 57,484              | 0.68%                    |
+| json-cycle                 | 52,758              | 0.71%                    |
+| json-stringify-safe        | 52,575              | 0.72%                    |
+| json-stable-stringify      | 41,761              | 0.60%                    |
+| decircularize              | 21,784              | 0.88%                    |
 
 #### Circular objects
 
@@ -77,10 +77,10 @@ _Objects that deeply reference themselves_
 
 |                                            | Operations / second | Relative margin of error |
 | ------------------------------------------ | ------------------- | ------------------------ |
-| **fast-stringify**                         | **97,382**          | **0.78%**                |
-| json-stringify-safe                        | 50,941              | 0.61%                    |
-| json-cycle                                 | 50,275              | 0.74%                    |
-| decircularize                              | 21,108              | 0.82%                    |
+| **fast-stringify**                         | **105,932**         | **0.84%**                |
+| json-stringify-safe                        | 49,366              | 1.07%                    |
+| json-cycle                                 | 49,152              | 0.67%                    |
+| decircularize                              | 20,626              | 0.81%                    |
 | fast-json-stable-stringify (not supported) | 0                   | 0.00%                    |
 | json-stable-stringify (not supported)      | 0                   | 0.00%                    |
 
@@ -90,12 +90,12 @@ _Custom constructors, React components, etc_
 
 |                            | Operations / second | Relative margin of error |
 | -------------------------- | ------------------- | ------------------------ |
-| **fast-stringify**         | **32,684**          | **0.63%**                |
-| json-cycle                 | 21,410              | 0.83%                    |
-| fast-json-stable-stringify | 18,825              | 0.86%                    |
-| json-stringify-safe        | 17,386              | 0.97%                    |
-| json-stable-stringify      | 14,193              | 0.86%                    |
-| decircularize              | 7,368               | 0.80%                    |
+| **fast-stringify**         | **35,391**          | **0.67%**                |
+| json-cycle                 | 20,413              | 0.63%                    |
+| fast-json-stable-stringify | 17,908              | 0.52%                    |
+| json-stringify-safe        | 16,988              | 0.85%                    |
+| json-stable-stringify      | 13,984              | 0.85%                    |
+| decircularize              | 7,223               | 0.65%                    |
 
 ## Development
 

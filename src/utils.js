@@ -62,20 +62,27 @@ export const getValue = (key, value) => value;
  */
 export const createReplacer = (replacer, circularReplacer) => {
   const cache = getNewCache();
-  const getStandard = replacer || getValue;
   const getCircular = circularReplacer || getCircularValue;
 
-  let refCount = 0;
+  let refCount = 0,
+      cacheCount = 0;
 
-  return (key, value) => {
-    if (value && typeof value === 'object') {
-      if (cache.has(value)) {
-        return getCircular.call(this, key, value, refCount++);
+  return function customReplacer(key, value) {
+    if (value && typeof value === 'object' && !(value instanceof Date || value instanceof RegExp)) {
+      if (cacheCount) {
+        if (cache.has(value)) {
+          return getCircular.call(this, key, value, refCount++);
+        }
+
+        cache.add(this);
+      } else {
+        cache.add(value);
       }
 
-      cache.add(value);
+      cacheCount++;
     }
 
-    return getStandard.call(this, key, value);
+    // eslint-disable-next-line eqeqeq
+    return replacer == null ? value : replacer.call(this, key, value);
   };
 };
