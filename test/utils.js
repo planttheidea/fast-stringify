@@ -114,6 +114,7 @@ test('if createReplacer will create a function that handles circular object valu
 
   const key = 'key';
   const value = {foo: 'bar'};
+  const object = {key: value};
 
   value.deeply = {
     circular: {
@@ -121,19 +122,19 @@ test('if createReplacer will create a function that handles circular object valu
     }
   };
 
-  const result = replacer(key, value);
+  const result = replacer.call(object, key, value);
 
   t.is(result, value);
 
-  const deeplyResult = replacer('deeply', value.deeply);
+  const deeplyResult = replacer.call(object[key], 'deeply', value.deeply);
 
   t.is(deeplyResult, value.deeply);
 
-  const circularResult = replacer('circular', value.deeply.circular);
+  const circularResult = replacer.call(object[key].deeply, 'circular', value.deeply.circular);
 
   t.is(circularResult, value.deeply.circular);
 
-  const circularValueResult = replacer('value', value.deeply.circular.value);
+  const circularValueResult = replacer.call(object[key].deeply.circular, 'value', value.deeply.circular.value);
 
   t.is(circularValueResult, '[ref-0]');
 });
@@ -146,6 +147,7 @@ test('if createReplacer will create a function that handles circular object valu
 
   const key = 'key';
   const value = {foo: 'bar'};
+  const object = {key: value};
 
   value.deeply = {
     circular: {
@@ -153,19 +155,19 @@ test('if createReplacer will create a function that handles circular object valu
     }
   };
 
-  const result = replacer(key, value);
+  const result = replacer.call(object, key, value);
 
   t.is(result, value);
 
-  const deeplyResult = replacer('deeply', value.deeply);
+  const deeplyResult = replacer.call(object[key], 'deeply', value.deeply);
 
   t.is(deeplyResult, value.deeply);
 
-  const circularResult = replacer('circular', value.deeply.circular);
+  const circularResult = replacer.call(object[key].deeply, 'circular', value.deeply.circular);
 
   t.is(circularResult, value.deeply.circular);
 
-  const circularValueResult = replacer('value', value.deeply.circular.value);
+  const circularValueResult = replacer.call(object[key].deeply.circular, 'value', value.deeply.circular.value);
 
   t.is(circularValueResult, `custom stuff: 0`);
 });

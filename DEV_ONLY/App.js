@@ -1,9 +1,9 @@
 // external dependencies
 import React from 'react';
-import safeStringify from 'json-stringify-safe';
 
 // src
 import stringify from '../src';
+import safeStringify from 'json-stringify-safe';
 
 function Circular(value) {
   this.deeply = {
@@ -94,7 +94,7 @@ console.groupEnd('circular');
 
 console.group('window');
 console.log(stringify(window));
-console.log(safeStringify(window));
+// console.log(safeStringify(window));
 console.groupEnd('window');
 
 console.group('object of many types');
@@ -155,3 +155,16 @@ console.group('other object of many types');
 console.log(stringify(object, null, 2));
 console.log(safeStringify(object, null, 2));
 console.groupEnd('other object of many types');
+
+const shared = ['quz'];
+
+const similar = {
+  foo: shared,
+  bar: shared,
+  baz: shared
+};
+
+console.group('object of shared types');
+console.log(stringify(similar, null, 2));
+console.log(safeStringify(similar, null, 2));
+console.groupEnd('object of shared types');
