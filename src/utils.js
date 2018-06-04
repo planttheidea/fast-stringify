@@ -70,7 +70,7 @@ export const createReplacer = (replacer, circularReplacer) => {
   return function customReplacer(key, value) {
     if (value && typeof value === 'object' && !(value instanceof Date || value instanceof RegExp)) {
       if (cacheCount) {
-        if (cache.has(value)) {
+        if (this === value || cache.has(value)) {
           return getCircular.call(this, key, value, refCount++);
         }
 
