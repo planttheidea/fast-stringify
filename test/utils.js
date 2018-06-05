@@ -3,7 +3,16 @@ import test from 'ava';
 
 // src
 import * as utils from 'src/utils';
-import * as constants from 'src/constants';
+
+test('if first will get the first n number of items in the array and return as a new array', (t) => {
+  const array = [1, 2, 3, 4, 5, 6, 7, 8];
+  const length = 3;
+
+  const result = utils.first(array, length);
+
+  t.not(result, array);
+  t.deepEqual(result, [1, 2, 3]);
+});
 
 test('if getCircularValue will return the correct default string value', (t) => {
   const key = 'foo';
@@ -15,32 +24,6 @@ test('if getCircularValue will return the correct default string value', (t) => 
   t.is(result, `[ref-${refCount}]`);
 });
 
-test.serial('if getNewCache will return a new WeakSet when support is present', (t) => {
-  const result = utils.getNewCache();
-
-  t.true(result instanceof WeakSet);
-});
-
-test.serial('if getNewCache will return a new WeakSet-like object when support is not present', (t) => {
-  const support = constants.HAS_WEAKSET_SUPPORT;
-
-  constants.HAS_WEAKSET_SUPPORT = false;
-
-  const result = utils.getNewCache();
-
-  t.false(result instanceof WeakSet);
-  t.deepEqual(result._values, []);
-
-  const value = {foo: 'bar'};
-
-  result.add(value);
-
-  t.deepEqual(result._values, [value]);
-  t.true(result.has(value));
-
-  constants.HAS_WEAKSET_SUPPORT = support;
-});
-
 test('if getValue return the value passed', (t) => {
   const key = 'key';
   const value = 'value';
@@ -48,6 +31,24 @@ test('if getValue return the value passed', (t) => {
   const result = utils.getValue(key, value);
 
   t.is(result, value);
+});
+
+test('if indexOf will return the index of the matching value in the array', (t) => {
+  const array = [1, 2, 3, 4, 5, 6, 7, 8];
+  const value = 4;
+
+  const result = utils.indexOf(array, value);
+
+  t.is(result, 3);
+});
+
+test('if indexOf will return -1 if the value does not exist in the array', (t) => {
+  const array = [1, 2, 3, 4, 5, 6, 7, 8];
+  const value = 40;
+
+  const result = utils.indexOf(array, value);
+
+  t.is(result, -1);
 });
 
 test('if createReplacer will create a function that handles standard values', (t) => {
