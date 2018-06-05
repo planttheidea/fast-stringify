@@ -65,6 +65,27 @@ export const indexOf = (array, value) => {
 };
 
 /**
+ * @function lastIndexOf
+ *
+ * @description
+ * get the last index of the value in the array
+ * lastIndexOf is usefull where the array is stack like
+ *
+ * @param {Array<any>} array the array to get the index of the value at
+ * @param {any} value the value to match
+ * @returns {number} the index of the value in array
+ */
+const lastIndexOf = (array, value) => {
+  for (var index = array.length; index-- > 0;) {
+    if (array[index] === value) {
+      break;
+    }
+  }
+
+  return index;
+};
+
+/**
  * @function createReplacer
  *
  * @description
@@ -76,29 +97,34 @@ export const indexOf = (array, value) => {
  */
 export const createReplacer = (replacer, circularReplacer) => {
   let cache = [];
+  let initd = 0;
 
+  const callable = typeof replacer === 'function';
   const getCircular = circularReplacer || getCircularValue;
 
   return function(key, value) {
-    if (cache.length) {
-      const locationOfThis = indexOf(cache, this);
+    let replacedValue = value;
+    if (initd) { // instead of read property of object every time
+      const locationOfThis = lastIndexOf(cache, this);
 
       if (~locationOfThis) {
-        cache = first(cache, locationOfThis + 1);
+        cache.length = locationOfThis + 1; // waste for create new array, we drop items at tail
       } else {
         cache[cache.length] = this;
       }
 
-      const locationOfValue = indexOf(cache, value);
+      const locationOfValue = lastIndexOf(cache, value);
 
       if (~locationOfValue) {
-        return getCircular.call(this, key, value, locationOfValue);
+        replacedValue = getCircular.call(this, key, value, locationOfValue);
+        // we dont return here, for call the replacer below even if circular was found
       }
     } else {
-      cache[cache.length] = value;
+      initd = 1;
+      cache[0] = value;
     }
 
-    // eslint-disable-next-line eqeqeq
-    return replacer == null ? value : replacer.call(this, key, value);
+    // either null or other unCallable
+    return callable ? replacer.call(this, key, value) : replacedValue;
   };
 };
