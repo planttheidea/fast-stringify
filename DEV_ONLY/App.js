@@ -96,7 +96,7 @@ console.groupEnd('circular');
 
 console.group('window');
 console.log(stringify(window));
-// console.log(safeStringify(window));
+console.log(safeStringify(window));
 console.groupEnd('window');
 
 console.group('object of many types');
@@ -158,13 +158,16 @@ console.log(stringify(object, null, 2));
 console.log(safeStringify(object, null, 2));
 console.groupEnd('other object of many types');
 
-const shared = ['quz'];
+const shared = {bar: []};
 
 const similar = {
   foo: shared,
   bar: shared,
-  baz: shared
+  baz: {}
 };
+
+similar.baz.foo = similar.foo;
+similar.baz.baz = similar.baz;
 
 console.group('object of shared types');
 console.log(stringify(similar, null, 2));
