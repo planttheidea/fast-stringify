@@ -1,7 +1,22 @@
-// constants
-import {HAS_WEAKSET_SUPPORT} from './constants';
+/**
+ * @function first
+ *
+ * @description
+ * get the first n number of items from the array as a new array (faster than native splice)
+ *
+ * @param {Array<any>} array the array to get the items from
+ * @param {number} length the length to limit the size to
+ * @returns {Array<any>} the array limited in size
+ */
+export const first = (array, length) => {
+  const newArray = new Array(length);
 
-const create = Object.create;
+  for (let index = 0; index < length; index++) {
+    newArray[index] = array[index];
+  }
+
+  return newArray;
+};
 
 /**
  * @function getCircularValue
@@ -18,27 +33,6 @@ const create = Object.create;
 export const getCircularValue = (key, value, refCount) => `[ref-${refCount}]`;
 
 /**
- * @function getNewCache
- *
- * @description
- * get a new cache based on support for WeakMap or not
- *
- * @returns {WeakMap|Object} the cache
- */
-export const getNewCache = () =>
-  HAS_WEAKSET_SUPPORT
-    ? new WeakSet()
-    : create({
-      _values: [],
-      add(value) {
-        this._values.push(value);
-      },
-      has(key) {
-        return !!~this._values.indexOf(key);
-      }
-    });
-
-/**
  * @function getValue
  *
  * @description
@@ -51,6 +45,26 @@ export const getNewCache = () =>
 export const getValue = (key, value) => value;
 
 /**
+ * @function indexOf
+ *
+ * @description
+ * get the index of the value in the array (faster than native indexOf)
+ *
+ * @param {Array<any>} array the array to get the index of the value at
+ * @param {any} value the value to match
+ * @returns {number} the index of the value in array
+ */
+export const indexOf = (array, value) => {
+  for (let index = 0; index < array.length; index++) {
+    if (array[index] === value) {
+      return index;
+    }
+  }
+
+  return -1;
+};
+
+/**
  * @function createReplacer
  *
  * @description
@@ -61,21 +75,30 @@ export const getValue = (key, value) => value;
  * @returns {any} the value to stringify
  */
 export const createReplacer = (replacer, circularReplacer) => {
-  const cache = getNewCache();
-  const getStandard = replacer || getValue;
+  let cache = [];
+
   const getCircular = circularReplacer || getCircularValue;
 
-  let refCount = 0;
+  return function(key, value) {
+    if (cache.length) {
+      const locationOfThis = indexOf(cache, this);
 
-  return (key, value) => {
-    if (value && typeof value === 'object') {
-      if (cache.has(value)) {
-        return getCircular.call(this, key, value, refCount++);
+      if (~locationOfThis) {
+        cache = first(cache, locationOfThis + 1);
+      } else {
+        cache[cache.length] = this;
       }
 
-      cache.add(value);
+      const locationOfValue = indexOf(cache, value);
+
+      if (~locationOfValue) {
+        return getCircular.call(this, key, value, locationOfValue);
+      }
+    } else {
+      cache[cache.length] = value;
     }
 
-    return getStandard.call(this, key, value);
+    // eslint-disable-next-line eqeqeq
+    return replacer == null ? value : replacer.call(this, key, value);
   };
 };

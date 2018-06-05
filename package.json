@@ -7,7 +7,8 @@
       "test/*.js"
     ],
     "require": [
-      "babel-register"
+      "babel-register",
+      "test/helpers/setup-browser-env.js"
     ],
     "source": [
       "src/*.js"
@@ -30,6 +31,7 @@
     "babel-preset-stage-2": "^6.24.1",
     "babel-register": "^6.26.0",
     "benchmark": "^2.1.4",
+    "browser-env": "^3.2.5",
     "decircularize": "^1.0.0",
     "eslint": "^4.19.1",
     "eslint-config-rapid7": "^2.11.1",
@@ -90,5 +92,5 @@
     "transpile:lib": "npm run clean:lib && BABEL_ENV=lib babel src --out-dir lib"
   },
   "types": "index.d.ts",
-  "version": "1.0.0"
+  "version": "1.0.3"
 }

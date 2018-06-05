@@ -1,9 +1,9 @@
 // external dependencies
 import React from 'react';
-import safeStringify from 'json-stringify-safe';
 
 // src
 import stringify from '../src';
+import safeStringify from 'json-stringify-safe';
 
 function Circular(value) {
   this.deeply = {
@@ -80,6 +80,8 @@ const object = {
   uint8ClampedArray: new Uint8ClampedArray([1, 2, 3]),
   weakMap: new WeakMap().set({}, 7).set({foo: 3}, ['abc']),
   weakSet: new WeakSet().add({}).add({foo: 'bar'}),
+  doc: document,
+  win: window,
 
   ReactStatefulClass: StatefulComponent,
   ReactStatefulElement: <StatefulComponent />,
@@ -155,3 +157,19 @@ console.group('other object of many types');
 console.log(stringify(object, null, 2));
 console.log(safeStringify(object, null, 2));
 console.groupEnd('other object of many types');
+
+const shared = {bar: []};
+
+const similar = {
+  foo: shared,
+  bar: shared,
+  baz: {}
+};
+
+similar.baz.foo = similar.foo;
+similar.baz.baz = similar.baz;
+
+console.group('object of shared types');
+console.log(stringify(similar, null, 2));
+console.log(safeStringify(similar, null, 2));
+console.groupEnd('object of shared types');
