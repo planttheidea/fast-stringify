@@ -75,13 +75,16 @@ export const indexOf = (array, value) => {
  * @returns {any} the value to stringify
  */
 export const createReplacer = (replacer, circularReplacer) => {
-  let cache = [];
+  const getCircularReplacer = circularReplacer || getCircularValue;
+  const hasReplacer = typeof replacer === 'function';
 
-  const getCircular = circularReplacer || getCircularValue;
+  let cache = [],
+      locationOfThis,
+      locationOfValue;
 
   return function(key, value) {
     if (cache.length) {
-      const locationOfThis = indexOf(cache, this);
+      locationOfThis = indexOf(cache, this);
 
       if (~locationOfThis) {
         cache = first(cache, locationOfThis + 1);
@@ -89,16 +92,15 @@ export const createReplacer = (replacer, circularReplacer) => {
         cache[cache.length] = this;
       }
 
-      const locationOfValue = indexOf(cache, value);
+      locationOfValue = indexOf(cache, value);
 
       if (~locationOfValue) {
-        return getCircular.call(this, key, value, locationOfValue);
+        return getCircularReplacer.call(this, key, value, locationOfValue);
       }
     } else {
-      cache[cache.length] = value;
+      cache[0] = value;
     }
 
-    // eslint-disable-next-line eqeqeq
-    return replacer == null ? value : replacer.call(this, key, value);
+    return hasReplacer ? replacer.call(this, key, value) : value;
   };
 };
