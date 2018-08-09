@@ -119,8 +119,8 @@ test('if createReplacer will create a function that handles circular object valu
 
   value.deeply = {
     circular: {
-      value
-    }
+      value,
+    },
   };
 
   const result = replacer.call(object, key, value);
@@ -152,8 +152,8 @@ test('if createReplacer will create a function that handles circular object valu
 
   value.deeply = {
     circular: {
-      value
-    }
+      value,
+    },
   };
 
   const result = replacer.call(object, key, value);

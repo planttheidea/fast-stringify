@@ -1,5 +1,9 @@
 # fast-stringify CHANGELOG
 
+## 1.1.0
+
+- Add ESM support for NodeJS with separate [`.mjs` extension](https://nodejs.org/api/esm.html) exports
+
 ## 1.0.4
 
 - Reduce runtime function checks

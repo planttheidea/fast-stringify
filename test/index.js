@@ -21,7 +21,7 @@ const shallowObject = {
   number: 123,
   string: 'foo',
   undef: undefined,
-  [Symbol('key')]: 'value'
+  [Symbol('key')]: 'value',
 };
 
 const deepObject = Object.assign({}, shallowObject, {
@@ -35,15 +35,15 @@ const deepObject = Object.assign({}, shallowObject, {
   regexp: /foo/,
   set: new Set().add('foo').add({bar: 'baz'}),
   weakmap: new WeakMap([[{}, 'foo'], [{}, 'bar']]),
-  weakset: new WeakSet([{}, {}])
+  weakset: new WeakSet([{}, {}]),
 });
 
 const circularObject = Object.assign({}, deepObject, {
   deeply: {
     nested: {
-      reference: {}
-    }
-  }
+      reference: {},
+    },
+  },
 });
 
 const specialObject = Object.assign({}, deepObject, {
@@ -58,17 +58,17 @@ const specialObject = Object.assign({}, deepObject, {
         children: [
           React.createElement('div', {
             children: 'Item',
-            style: {flex: '1 1 auto'}
+            style: {flex: '1 1 auto'},
           }),
           React.createElement('div', {
             children: 'Item',
-            style: {flex: '1 1 0'}
-          })
+            style: {flex: '1 1 0'},
+          }),
         ],
-        style: {display: 'flex'}
-      })
-    ]
-  })
+        style: {display: 'flex'},
+      }),
+    ],
+  }),
 });
 
 circularObject.deeply.nested.reference = circularObject;
