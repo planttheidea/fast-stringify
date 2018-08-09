@@ -6,6 +6,7 @@ A [blazing fast](#benchmarks) stringifier that safely handles circular objects
 
 - [Usage](#usage)
   - [stringify](#stringify)
+- [Importing](#importing)
 - [Benchmarks](#benchmarks)
   - [Simple objects](#simple-objects)
   - [Complex objects](#complex-objects)
@@ -42,6 +43,26 @@ Stringifies the object passed based on the parameters you pass. The only require
 - `replacer` => function to customize how the value for each key is stringified (see [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) for more details)
 - `indent` => number of spaces to indent the stringified object for pretty-printing (see [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) for more details)
 - `circularReplacer` => function to customize how the circular reference is stringified (defaults to `[ref-##]` where `##` is the reference count)
+
+## Importing
+
+ESM in browsers:
+
+```javascript
+import stringify from "fast-stringify";
+```
+
+ESM in NodeJS:
+
+```javascript
+import stringify from "fast-stringify/mjs";
+```
+
+CommonJS:
+
+```javascript
+const stringify = require("fast-stringify").default;
+```
 
 ## Benchmarks
 
