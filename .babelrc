@@ -3,79 +3,85 @@
     "benchmark": {
       "presets": [
         [
-          "env",
+          "@babel/preset-env",
           {
             "loose": true
           }
         ],
-        "stage-2",
         "minify"
-      ]
+      ],
+      "plugins": ["@babel/plugin-proposal-json-strings"]
     },
     "development": {
       "plugins": [
-        ["transform-runtime", {
-          "polyfill": false,
-          "regenerator": true
-        }]
+        [
+          "@babel/plugin-transform-runtime",
+          {
+            "corejs": false,
+            "helpers": false,
+            "regenerator": true,
+            "useESModules": true
+          }
+        ],
+        "@babel/plugin-proposal-class-properties",
+        "@babel/plugin-proposal-json-strings"
       ],
       "presets": [
         [
-          "env",
+          "@babel/preset-env",
           {
             "loose": true,
             "modules": false
           }
-        ],
-        "stage-2"
+        ]
       ]
     },
     "es": {
       "presets": [
         [
-          "env",
+          "@babel/preset-env",
           {
             "loose": true,
             "modules": false
           }
-        ],
-        "stage-2"
-      ]
+        ]
+      ],
+      "plugins": ["@babel/plugin-proposal-json-strings"]
     },
     "lib": {
       "presets": [
         [
-          "env",
+          "@babel/preset-env",
           {
             "loose": true
           }
-        ],
-        "stage-2"
-      ]
+        ]
+      ],
+      "plugins": ["@babel/plugin-proposal-json-strings"]
     },
     "production": {
       "presets": [
         [
-          "env",
+          "@babel/preset-env",
           {
             "loose": true,
             "modules": false
           }
         ],
-        "stage-2",
         "minify"
-      ]
+      ],
+      "plugins": ["@babel/plugin-proposal-json-strings"]
     },
     "test": {
       "presets": [
         [
-          "env",
+          "@babel/preset-env",
           {
             "loose": true
           }
-        ],
-        "stage-2"
-      ]
+        ]
+      ],
+      "plugins": ["@babel/plugin-proposal-json-strings"]
     }
   }
 }
