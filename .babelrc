@@ -47,7 +47,7 @@
       ]
     }
   },
-  "plugins": ["macros", "@babel/plugin-proposal-json-strings"],
+  "plugins": ["@babel/plugin-proposal-json-strings"],
   "presets": [
     [
       "@babel/preset-env",
