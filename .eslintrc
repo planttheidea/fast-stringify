@@ -1,5 +1,5 @@
 {
-  "extends": ["rapid7/browser"],
+  "extends": ["airbnb-base"],
   "globals": {
     "__dirname": true,
     "Buffer": true,
@@ -10,5 +10,8 @@
     "TypedArray": true
   },
   "parser": "babel-eslint",
-  "rules": {}
+  "rules": {
+    "no-bitwise": 0,
+    "no-plusplus": 0
+  }
 }

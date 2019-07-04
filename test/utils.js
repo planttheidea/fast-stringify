@@ -24,15 +24,6 @@ test('if getCircularValue will return the correct default string value', (t) => 
   t.is(result, `[ref-${refCount}]`);
 });
 
-test('if getValue return the value passed', (t) => {
-  const key = 'key';
-  const value = 'value';
-
-  const result = utils.getValue(key, value);
-
-  t.is(result, value);
-});
-
 test('if indexOf will return the index of the matching value in the array', (t) => {
   const array = [1, 2, 3, 4, 5, 6, 7, 8];
   const value = 4;

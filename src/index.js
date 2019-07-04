@@ -1,5 +1,5 @@
 // utils
-import {createReplacer} from './utils';
+import { createReplacer } from './utils';
 
 /**
  * @function stringify
