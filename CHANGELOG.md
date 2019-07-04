@@ -1,5 +1,15 @@
 # fast-stringify CHANGELOG
 
+## 2.0.0
+
+- Rewritten in TypeScript
+- Better reference key identification
+
+### BREAKING CHANGES
+
+- CommonJS builds no longer need `.default` (`const stringify = require('fast-stringify');`)
+- Reference keys on circular objects now reflect the key structure leading to the object
+
 ## 1.1.2
 
 - Update documentation to explain the purpose of the library and its relationship to `JSON.stringify`

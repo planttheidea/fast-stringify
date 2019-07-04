@@ -189,3 +189,37 @@ describe('handling of object types', () => {
     expect(result).toEqual(JSON.stringify(specialObject, circularReplacer));
   });
 });
+
+describe('key references', () => {
+  it('should point to the top level object when it is referenced', () => {
+    const object = {
+      foo: 'bar',
+      deeply: {
+        recursive: {
+          object: {},
+        },
+      },
+    };
+
+    object.deeply.recursive.object = object;
+
+    expect(stringify(object)).toEqual(`{"foo":"bar","deeply":{"recursive":{"object":"[ref=.]"}}}`);
+  });
+
+  it('should point to the nested object when it is referenced', () => {
+    const object = {
+      foo: 'bar',
+      deeply: {
+        recursive: {
+          object: {},
+        },
+      },
+    };
+
+    object.deeply.recursive.object = object.deeply.recursive;
+
+    expect(stringify(object)).toEqual(
+      `{"foo":"bar","deeply":{"recursive":{"object":"[ref=.deeply.recursive]"}}}`,
+    );
+  });
+});

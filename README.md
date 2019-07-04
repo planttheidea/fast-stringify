@@ -35,10 +35,10 @@ const object = {
   }
 };
 
-object.deeply.recursive.object = object;
+object.deeply.recursive.object = object.deeply.recursive;
 
 console.log(stringify(object));
-// {"foo":"bar","deeply":{"recursive":{"object":"[ref-0]"}}}
+// {"foo":"bar","deeply":{"recursive":{"object":"[ref=.deeply.recursive]"}}}
 ```
 
 #### stringify
@@ -68,7 +68,7 @@ import stringify from "fast-stringify/mjs";
 CommonJS:
 
 ```javascript
-const stringify = require("fast-stringify").default;
+const stringify = require("fast-stringify");
 ```
 
 ## Benchmarks
