@@ -2,15 +2,14 @@
 
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
 
-const defaultConfig = require('./webpack.config');
-const statics = require('./webpackStatics');
-
+const ROOT = path.resolve(__dirname, '..');
 const PORT = 3000;
 
-module.exports = Object.assign({}, defaultConfig, {
+module.exports = {
   devServer: {
-    contentBase: path.join(statics.ROOT, 'dist'),
+    contentBase: path.join(ROOT, 'dist'),
     host: 'localhost',
     inline: true,
     lazy: false,
@@ -23,54 +22,62 @@ module.exports = Object.assign({}, defaultConfig, {
     },
   },
 
-  entry: [path.resolve(statics.ROOT, 'DEV_ONLY', 'index.tsx')],
+  devtool: '#source-map',
 
-  module: Object.assign({}, defaultConfig.module, {
-    rules: defaultConfig.module.rules.map((rule) => {
-      if (rule.loader === 'babel-loader') {
-        return Object.assign({}, rule, {
-          include: rule.include.concat([path.resolve(statics.ROOT, 'DEV_ONLY')]),
-          options: {
-            plugins: [
-              [
-                '@babel/plugin-transform-runtime',
-                {
-                  corejs: false,
-                  helpers: false,
-                  regenerator: true,
-                  useESModules: true
-                }
-              ],
-              '@babel/plugin-proposal-class-properties'
+  entry: [path.resolve(ROOT, 'DEV_ONLY', 'index.tsx')],
+
+  mode: 'development',
+
+  module: {
+    rules: [
+      {
+        enforce: 'pre',
+        include: [path.resolve(ROOT, 'src')],
+        loader: 'eslint-loader',
+        options: {
+          configFile: '.eslintrc',
+          failOnError: true,
+          failOnWarning: false,
+          fix: true,
+          formatter: require('eslint-friendly-formatter'),
+        },
+        test: /\.(js|ts|tsx)$/,
+      },
+      {
+        include: [path.resolve(ROOT, 'DEV_ONLY'), path.resolve(ROOT, 'src')],
+        loader: 'babel-loader',
+        options: {
+          plugins: [
+            [
+              '@babel/plugin-transform-runtime',
+              {
+                corejs: false,
+                helpers: false,
+                regenerator: true,
+                useESModules: true
+              }
             ],
-            presets: ['@babel/preset-react'],
-          },
-        });
-      }
-
-      if (rule.loader === 'eslint-loader') {
-        return Object.assign({}, rule, {
-          options: Object.assign({}, rule.options, {
-            failOnWarning: false,
-          }),
-        });
-      }
-
-      return rule;
-    }),
-  }),
-
-  node: {
-    fs: 'empty',
+            '@babel/plugin-proposal-class-properties'
+          ],
+          presets: ['@babel/preset-react'],
+        },
+        test: /\.(js|ts|tsx)$/,
+      },
+    ],
   },
 
-  output: Object.assign({}, defaultConfig.output, {
+  output: {
+    filename: 'fast-stringify.js',
+    library: 'fastStringify',
+    libraryTarget: 'umd',
+    path: path.resolve(ROOT, 'dist'),
     publicPath: `http://localhost:${PORT}/`,
-  }),
+    umdNamedDefine: true,
+  },
 
-  plugins: defaultConfig.plugins.concat([new HtmlWebpackPlugin()]),
+  plugins: [new webpack.EnvironmentPlugin(['NODE_ENV']), new HtmlWebpackPlugin()],
 
   resolve: {
     extensions: [".ts", ".tsx", ".js"]
   },
-});
+};

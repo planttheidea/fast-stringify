@@ -79,10 +79,10 @@ function createReplacer(
  * @returns the stringified output
  */
 export default function stringify(
-  value: any,
+  object: any,
   replacer?: StandardReplacer,
   indent?: number,
   circularReplacer?: CircularReplacer,
 ) {
-  return JSON.stringify(value, createReplacer(replacer, circularReplacer), indent);
+  return JSON.stringify(object, createReplacer(replacer, circularReplacer), indent);
 }
