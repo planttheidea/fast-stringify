@@ -23,7 +23,7 @@ module.exports = Object.assign({}, defaultConfig, {
     },
   },
 
-  entry: [path.resolve(statics.ROOT, 'DEV_ONLY', 'index.js')],
+  entry: [path.resolve(statics.ROOT, 'DEV_ONLY', 'index.tsx')],
 
   module: Object.assign({}, defaultConfig.module, {
     rules: defaultConfig.module.rules.map((rule) => {
@@ -31,7 +31,6 @@ module.exports = Object.assign({}, defaultConfig, {
         return Object.assign({}, rule, {
           include: rule.include.concat([path.resolve(statics.ROOT, 'DEV_ONLY')]),
           options: {
-            cacheDirectory: true,
             plugins: [
               [
                 '@babel/plugin-transform-runtime',
@@ -70,4 +69,8 @@ module.exports = Object.assign({}, defaultConfig, {
   }),
 
   plugins: defaultConfig.plugins.concat([new HtmlWebpackPlugin()]),
+
+  resolve: {
+    extensions: [".ts", ".tsx", ".js"]
+  },
 });

@@ -10,7 +10,7 @@ module.exports = {
 
   devtool: '#source-map',
 
-  entry: [path.resolve(statics.ROOT, 'src', 'index.js')],
+  entry: [path.resolve(statics.ROOT, 'src', 'index.ts')],
 
   mode: 'development',
 
@@ -27,12 +27,12 @@ module.exports = {
           fix: true,
           formatter: require('eslint-friendly-formatter'),
         },
-        test: /\.js$/,
+        test: /\.(js|ts|tsx)$/,
       },
       {
         include: [path.resolve(statics.ROOT, 'DEV_ONLY'), path.resolve(statics.ROOT, 'src')],
         loader: 'babel-loader',
-        test: /\.js$/,
+        test: /\.(js|ts|tsx)$/,
       },
     ],
   },

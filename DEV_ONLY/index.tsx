@@ -5,23 +5,37 @@ import React from 'react';
 import stringify from '../src';
 import safeStringify from 'json-stringify-safe';
 
+document.body.style.backgroundColor = '#1d1d1d';
+document.body.style.color = '#d5d5d5';
+document.body.style.margin = '0px';
+document.body.style.padding = '0px';
+
+const div = document.createElement('div');
+
+div.textContent = 'Check the console for details.';
+
+document.body.appendChild(div);
+
 function Circular(value) {
   this.deeply = {
     nested: {
       reference: this,
-      value
-    }
+      value,
+    },
   };
 }
 
 const StatelessComponent = () => <div>test</div>;
 
-class StatefulComponent extends React.Component {
-  state = {
-    foo: 'bar'
-  };
+type Props = {};
+type State = {
+  foo: string;
+};
 
-  componentDidMount() {}
+class StatefulComponent extends React.Component<Props, State> {
+  state: State = {
+    foo: 'bar',
+  };
 
   render() {
     return <StatelessComponent />;
@@ -29,11 +43,11 @@ class StatefulComponent extends React.Component {
 }
 
 const a = {
-  foo: 'bar'
+  foo: 'bar',
 };
 
 const b = {
-  a
+  a,
 };
 
 const object = {
@@ -45,7 +59,7 @@ const object = {
   func() {
     alert('y');
   },
-  * generator() {
+  *generator() {
     let value = yield 1;
 
     yield value + 2;
@@ -53,7 +67,7 @@ const object = {
   undef: undefined,
   nil: null,
   obj: {
-    foo: 'bar'
+    foo: 'bar',
   },
   arr: ['foo', 'bar'],
   el: document.createElement('div'),
@@ -71,51 +85,58 @@ const object = {
   int16Array: new Int16Array([1, 2, 3]),
   int32Array: new Int32Array([1, 2, 3]),
   int8Array: new Int8Array([1, 2, 3]),
-  map: new Map().set(true, 7).set({foo: 3}, ['abc']),
+  map: new Map().set(true, 7).set({ foo: 3 }, ['abc']),
   promise: Promise.resolve(1),
   set: new Set().add('foo').add(2),
   uint16Array: new Uint16Array([1, 2, 3]),
   uint32Array: new Uint32Array([1, 2, 3]),
   uint8Array: new Uint8Array([1, 2, 3]),
   uint8ClampedArray: new Uint8ClampedArray([1, 2, 3]),
-  weakMap: new WeakMap().set({}, 7).set({foo: 3}, ['abc']),
-  weakSet: new WeakSet().add({}).add({foo: 'bar'}),
+  weakMap: new WeakMap().set({}, 7).set({ foo: 3 }, ['abc']),
+  weakSet: new WeakSet().add({}).add({ foo: 'bar' }),
   doc: document,
   win: window,
 
   ReactStatefulClass: StatefulComponent,
+  // @ts-ignore
   ReactStatefulElement: <StatefulComponent />,
   ReactStatelessClass: StatelessComponent,
-  ReactStatelessElement: <StatelessComponent />
+  ReactStatelessElement: <StatelessComponent />,
 };
 
 console.group('circular');
 console.log(stringify(new Circular('foo')));
 console.log(safeStringify(new Circular('foo')));
-console.groupEnd('circular');
+console.groupEnd();
 
 console.group('window');
 console.log(stringify(window));
 console.log(safeStringify(window));
-console.groupEnd('window');
+console.groupEnd();
 
 console.group('object of many types');
 console.log(stringify(object, null, 2));
 console.log(safeStringify(object, null, 2));
-console.groupEnd('object of many types');
+console.groupEnd();
 
 console.group('custom replacer');
 console.log(stringify(object.arrayBuffer, (key, value) => Buffer.from(value).toString('utf8')));
-console.groupEnd('custom replacer');
+console.groupEnd();
 
 console.group('custom circular replacer');
-console.log(stringify(new Circular('foo'), null, null, (key, value, refCount) => `Ref-${refCount}`));
-console.groupEnd('custom circular replacer');
+console.log(
+  stringify(new Circular('foo'), null, null, (key, value, refCount) => `Ref-${refCount}`),
+);
+console.groupEnd();
 
-function Foo(value) {
-  this.value = value;
+class Foo {
+  value: string;
 
-  return this;
+  constructor(value: string) {
+    this.value = value;
+
+    return this;
+  }
 }
 
 const shallowObject = {
@@ -128,42 +149,45 @@ const shallowObject = {
   number: 123,
   string: 'foo',
   undef: undefined,
-  [Symbol('key')]: 'value'
+  [Symbol('key')]: 'value',
 };
 
 const deepObject = Object.assign({}, shallowObject, {
-  array: ['foo', {bar: 'baz'}],
+  array: ['foo', { bar: 'baz' }],
   buffer: new Buffer('this is a test buffer'),
   error: new Error('boom'),
   foo: new Foo('value'),
-  map: new Map().set('foo', {bar: 'baz'}),
-  object: {foo: {bar: 'baz'}},
+  map: new Map().set('foo', { bar: 'baz' }),
+  object: { foo: { bar: 'baz' } },
   promise: Promise.resolve('foo'),
   regexp: /foo/,
-  set: new Set().add('foo').add({bar: 'baz'}),
+  set: new Set().add('foo').add({ bar: 'baz' }),
   weakmap: new WeakMap([[{}, 'foo'], [{}, 'bar']]),
-  weakset: new WeakSet([{}, {}])
+  weakset: new WeakSet([{}, {}]),
 });
 
 const circularObject = Object.assign({}, deepObject, {
   deeply: {
     nested: {
-      reference: {}
-    }
-  }
+      reference: {},
+    },
+  },
 });
 
 console.group('other object of many types');
 console.log(stringify(object, null, 2));
 console.log(safeStringify(object, null, 2));
-console.groupEnd('other object of many types');
+console.groupEnd();
 
-const shared = {bar: []};
+const shared = { bar: [] };
 
 const similar = {
   foo: shared,
   bar: shared,
-  baz: {}
+  baz: {
+    baz: null,
+    foo: null,
+  },
 };
 
 similar.baz.foo = similar.foo;
@@ -172,4 +196,4 @@ similar.baz.baz = similar.baz;
 console.group('object of shared types');
 console.log(stringify(similar, null, 2));
 console.log(safeStringify(similar, null, 2));
-console.groupEnd('object of shared types');
+console.groupEnd();
