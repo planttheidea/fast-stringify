@@ -94,17 +94,17 @@ function createReplacer(
  * @description
  * strinigifer that handles circular values
  *
- * @param value the value to stringify
+ * @param the value to stringify
  * @param [replacer] a custom replacer function for handling standard values
  * @param [indent] the number of spaces to indent the output by
  * @param [circularReplacer] a custom replacer function for handling circular values
  * @returns the stringified output
  */
 export default function stringify(
-  object: any,
+  value: any,
   replacer?: StandardReplacer,
   indent?: number,
   circularReplacer?: CircularReplacer,
 ) {
-  return JSON.stringify(object, createReplacer(replacer, circularReplacer), indent);
+  return JSON.stringify(value, createReplacer(replacer, circularReplacer), indent);
 }

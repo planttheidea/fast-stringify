@@ -43,10 +43,21 @@ console.log(stringify(object));
 
 #### stringify
 
-`stringify(object: any, replacer: ?function, indent: ?number, circularReplacer: ?function): string`
+```ts
+type StandardReplacer = (key: string, value: any) => any;
+type CircularReplacer = (key: string, value: any, referenceKey: string) => any;
+
+function stringify(
+  value: any,
+  replacer?: StandardReplacer,
+  indent?: number,
+  circularReplacer: CircularReplacer
+): string;
+```
 
 Stringifies the object passed based on the parameters you pass. The only required value is the `object`. The additional parameters passed will customize how the string is compiled.
 
+- `value` => the value to stringify
 - `replacer` => function to customize how the value for each key is stringified (see [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) for more details)
 - `indent` => number of spaces to indent the stringified object for pretty-printing (see [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) for more details)
 - `circularReplacer` => function to customize how the circular reference is stringified (defaults to `[ref=##]` where `##` is the reference key structure)
