@@ -4,15 +4,22 @@ A [blazing fast](#benchmarks) stringifier that safely handles circular objects
 
 ## Table of contents
 
-- [Usage](#usage)
-  - [stringify](#stringify)
-- [Importing](#importing)
-- [Benchmarks](#benchmarks)
-  - [Simple objects](#simple-objects)
-  - [Complex objects](#complex-objects)
-  - [Circular objects](#circular-objects)
-  - [Special objects](#special-objects)
-- [Development](#development)
+- [fast-stringify](#fast-stringify)
+  - [Table of contents](#Table-of-contents)
+  - [Summary](#Summary)
+  - [Usage](#Usage)
+      - [stringify](#stringify)
+  - [Importing](#Importing)
+  - [Benchmarks](#Benchmarks)
+      - [Simple objects](#Simple-objects)
+      - [Complex objects](#Complex-objects)
+      - [Circular objects](#Circular-objects)
+      - [Special objects](#Special-objects)
+  - [Development](#Development)
+
+## Summary
+
+The fastest way to stringify an object will always be the native `JSON.stringify`, but it does not support circular objects out of the box. If you need to stringify objects that have circular references, `fast-stringify` is there for you! It maintains a very similar API to the native `JSON.stringify`, and aims to be the most performant stringifier that handles circular references.
 
 ## Usage
 

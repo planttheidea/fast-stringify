@@ -75,28 +75,26 @@ export function createReplacer(replacer, circularReplacer) {
   const hasReplacer = typeof replacer === 'function';
 
   let cache = [];
-  let locationOfThis;
-  let locationOfValue;
 
   return function replace(key, value) {
-    if (cache.length) {
-      const newCache = [];
+    if (typeof value === 'object') {
+      if (cache.length) {
+        const locationOfThis = indexOf(cache, this);
 
-      locationOfThis = indexOf(cache, this);
+        if (~locationOfThis) {
+          cache = first(cache, locationOfThis + 1);
+        } else {
+          cache[cache.length] = this;
+        }
 
-      if (~locationOfThis) {
-        cache = first(cache, locationOfThis + 1);
+        const locationOfValue = indexOf(cache, value);
+
+        if (~locationOfValue) {
+          return getCircularReplacer.call(this, key, value, locationOfValue);
+        }
       } else {
-        cache[cache.length] = this;
+        cache[0] = value;
       }
-
-      locationOfValue = indexOf(cache, value);
-
-      if (~locationOfValue) {
-        return getCircularReplacer.call(this, key, value, locationOfValue);
-      }
-    } else {
-      cache[0] = value;
     }
 
     return hasReplacer ? replacer.call(this, key, value) : value;
