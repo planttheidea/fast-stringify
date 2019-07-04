@@ -145,6 +145,8 @@ Standard practice, clone the repo and `npm i` to get the dependencies. The follo
 - `lint` => run ESLint on all files in `src` folder (also runs on `dev` script)
 - `lint:fix` => run `lint` script, but with auto-fixer
 - `prepublishOnly` => run `lint`, `typecheck`, `test:coverage`, and `dist` scripts
+- `release` => run `release-it` for standard versions (expected to be installed globally)
+- `release:beta` => run `release-it` for beta versions (expected to be installed globally)
 - `start` => run `dev`
 - `test` => run Jest with NODE_ENV=test on all files in `__tests__` folder
 - `test:coverage` => run same script as `test` with code coverage calculation

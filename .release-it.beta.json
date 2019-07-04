@@ -1,0 +1,10 @@
+{
+  "github": {
+    "release": true,
+    "tagName": "v${version}"
+  },
+  "npm": {
+    "tag": "next"
+  },
+  "preReleaseId": "beta"
+}
