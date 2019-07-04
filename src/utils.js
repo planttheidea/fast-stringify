@@ -1,3 +1,6 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { findIndex } from 'inline-loops.macro';
+
 /**
  * @function first
  *
@@ -35,26 +38,6 @@ export function getCircularValue(_key, _value, refCount) {
 }
 
 /**
- * @function indexOf
- *
- * @description
- * get the index of the value in the array (faster than native indexOf)
- *
- * @param {Array<any>} array the array to get the index of the value at
- * @param {any} value the value to match
- * @returns {number} the index of the value in array
- */
-export function indexOf(array, value) {
-  for (let index = 0; index < array.length; index++) {
-    if (array[index] === value) {
-      return index;
-    }
-  }
-
-  return -1;
-}
-
-/**
  * @function createReplacer
  *
  * @description
@@ -74,7 +57,7 @@ export function createReplacer(replacer, circularReplacer) {
 
   return function replace(key, value) {
     if (cache.length) {
-      locationOfThis = indexOf(cache, this);
+      locationOfThis = findIndex(cache, v => v === this);
 
       if (~locationOfThis) {
         cache = first(cache, locationOfThis + 1);
@@ -82,7 +65,7 @@ export function createReplacer(replacer, circularReplacer) {
         cache[cache.length] = this;
       }
 
-      locationOfValue = indexOf(cache, value);
+      locationOfValue = findIndex(cache, v => v === value);
 
       if (~locationOfValue) {
         return getCircularReplacer.call(this, key, value, locationOfValue);

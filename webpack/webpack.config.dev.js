@@ -32,6 +32,18 @@ module.exports = Object.assign({}, defaultConfig, {
           include: rule.include.concat([path.resolve(statics.ROOT, 'DEV_ONLY')]),
           options: {
             cacheDirectory: true,
+            plugins: [
+              [
+                '@babel/plugin-transform-runtime',
+                {
+                  corejs: false,
+                  helpers: false,
+                  regenerator: true,
+                  useESModules: true
+                }
+              ],
+              '@babel/plugin-proposal-class-properties'
+            ],
             presets: ['@babel/preset-react'],
           },
         });

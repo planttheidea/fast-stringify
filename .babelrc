@@ -9,8 +9,7 @@
           }
         ],
         "minify"
-      ],
-      "plugins": ["@babel/plugin-proposal-json-strings"]
+      ]
     },
     "development": {
       "plugins": [
@@ -25,28 +24,7 @@
         ],
         "@babel/plugin-proposal-class-properties",
         "@babel/plugin-proposal-json-strings"
-      ],
-      "presets": [
-        [
-          "@babel/preset-env",
-          {
-            "loose": true,
-            "modules": false
-          }
-        ]
       ]
-    },
-    "es": {
-      "presets": [
-        [
-          "@babel/preset-env",
-          {
-            "loose": true,
-            "modules": false
-          }
-        ]
-      ],
-      "plugins": ["@babel/plugin-proposal-json-strings"]
     },
     "lib": {
       "presets": [
@@ -56,21 +34,7 @@
             "loose": true
           }
         ]
-      ],
-      "plugins": ["@babel/plugin-proposal-json-strings"]
-    },
-    "production": {
-      "presets": [
-        [
-          "@babel/preset-env",
-          {
-            "loose": true,
-            "modules": false
-          }
-        ],
-        "minify"
-      ],
-      "plugins": ["@babel/plugin-proposal-json-strings"]
+      ]
     },
     "test": {
       "presets": [
@@ -80,8 +44,17 @@
             "loose": true
           }
         ]
-      ],
-      "plugins": ["@babel/plugin-proposal-json-strings"]
+      ]
     }
-  }
+  },
+  "plugins": ["macros", "@babel/plugin-proposal-json-strings"],
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "loose": true,
+        "modules": false
+      }
+    ]
+  ]
 }

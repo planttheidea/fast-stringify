@@ -24,24 +24,6 @@ test('if getCircularValue will return the correct default string value', (t) => 
   t.is(result, `[ref-${refCount}]`);
 });
 
-test('if indexOf will return the index of the matching value in the array', (t) => {
-  const array = [1, 2, 3, 4, 5, 6, 7, 8];
-  const value = 4;
-
-  const result = utils.indexOf(array, value);
-
-  t.is(result, 3);
-});
-
-test('if indexOf will return -1 if the value does not exist in the array', (t) => {
-  const array = [1, 2, 3, 4, 5, 6, 7, 8];
-  const value = 40;
-
-  const result = utils.indexOf(array, value);
-
-  t.is(result, -1);
-});
-
 test('if createReplacer will create a function that handles standard values', (t) => {
   const customReplacer = undefined;
   const customCircularReplacer = undefined;
