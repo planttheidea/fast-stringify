@@ -14,8 +14,7 @@ export default [
     },
     plugins: [
       resolve({
-        module: true,
-        main: true
+        mainFields: ['module', 'main'],
       }),
       babel({
         exclude: "node_modules/**"
@@ -32,8 +31,7 @@ export default [
     },
     plugins: [
       resolve({
-        module: true,
-        main: true
+        mainFields: ['module', 'main'],
       }),
       babel({
         exclude: "node_modules/**"

@@ -1,5 +1,11 @@
 # fast-stringify CHANGELOG
 
+## 1.1.2
+
+- Update documentation to explain the purpose of the library and its relationship to `JSON.stringify`
+- Add `typeof value === 'object'` check to only cache objects for faster iteration
+- Improve internal `indexOf` lookup for faster cache comparisons
+
 ## 1.1.1
 
 - Upgrade to use Babel 7 for transformations
