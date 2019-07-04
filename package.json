@@ -14,6 +14,7 @@
     ],
     "verbose": true
   },
+  "browser": "dist/index.js",
   "bugs": {
     "url": "https://github.com/planttheidea/fast-stringify/issues"
   },
@@ -55,6 +56,7 @@
     "rollup": "^1.16.4",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-terser": "^5.1.0",
     "rollup-plugin-uglify": "^6.0.2",
     "sinon": "^7.3.2",
     "webpack": "^4.35.2",
@@ -69,8 +71,8 @@
     "json"
   ],
   "license": "MIT",
-  "main": "lib/index.js",
-  "module": "es/index.js",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
   "name": "fast-stringify",
   "repository": {
     "type": "git",

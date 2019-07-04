@@ -8,7 +8,7 @@
  * @param cutoff the maximum number of keys to include
  * @returns the reference key
  */
-export function getReferenceKey(keys: string[], cutoff: number) {
+function getReferenceKey(keys: string[], cutoff: number) {
   return keys.slice(0, cutoff).join('.') || '.';
 }
 
@@ -25,7 +25,7 @@ type CircularReplacer = (key: string, value: any, referenceKey: string) => any;
  * @param [circularReplacer] a custom replacer to use for circular methods
  * @returns the value to stringify
  */
-export function createReplacer(
+function createReplacer(
   replacer?: StandardReplacer,
   circularReplacer?: CircularReplacer,
 ): StandardReplacer {
