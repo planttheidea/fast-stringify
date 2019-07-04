@@ -79,10 +79,10 @@ export function createReplacer(replacer, circularReplacer) {
   return function replace(key, value) {
     if (typeof value === 'object') {
       if (cache.length) {
-        const locationOfThis = indexOf(cache, this);
+        const cutoff = indexOf(cache, this) + 1;
 
-        if (~locationOfThis) {
-          cache = first(cache, locationOfThis + 1);
+        if (cutoff) {
+          cache = first(cache, cutoff);
         } else {
           cache[cache.length] = this;
         }
