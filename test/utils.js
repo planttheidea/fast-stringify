@@ -17,11 +17,11 @@ test('if first will get the first n number of items in the array and return as a
 test('if getCircularValue will return the correct default string value', (t) => {
   const key = 'foo';
   const value = 'bar';
-  const refCount = 123;
+  const referenceKey = 123;
 
-  const result = utils.getCircularValue(key, value, refCount);
+  const result = utils.getCircularValue(key, value, referenceKey);
 
-  t.is(result, `[ref-${refCount}]`);
+  t.is(result, `[ref=${referenceKey}]`);
 });
 
 test('if createReplacer will create a function that handles standard values', (t) => {
@@ -110,7 +110,7 @@ test('if createReplacer will create a function that handles circular object valu
 
   const circularValueResult = replacer.call(object[key].deeply.circular, 'value', value.deeply.circular.value);
 
-  t.is(circularValueResult, '[ref-0]');
+  t.is(circularValueResult, `[ref=${key}]`);
 });
 
 test('if createReplacer will create a function that handles circular object values with a custom circularReplacer', (t) => {
@@ -143,5 +143,5 @@ test('if createReplacer will create a function that handles circular object valu
 
   const circularValueResult = replacer.call(object[key].deeply.circular, 'value', value.deeply.circular.value);
 
-  t.is(circularValueResult, `custom stuff: 0`);
+  t.is(circularValueResult, `custom stuff: ${key}`);
 });

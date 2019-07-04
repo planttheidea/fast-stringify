@@ -119,7 +119,7 @@ test('if circular objects are handled', (t) => {
 
         return (key, value) => {
           if (value && typeof value === 'object' && ~cache.indexOf(value)) {
-            return `[ref-${cache.indexOf(value)}]`;
+            return `[ref=.]`;
           }
 
           cache.push(value);
@@ -143,7 +143,7 @@ test('if circular objects are handled with a custom circular replacer', (t) => {
 
         return (key, value) => {
           if (value && typeof value === 'object' && ~cache.indexOf(value)) {
-            return cache.indexOf(value);
+            return '.';
           }
 
           cache.push(value);
@@ -167,7 +167,7 @@ test('if special objects are handled', (t) => {
 
         return (key, value) => {
           if (value && typeof value === 'object' && ~cache.indexOf(value)) {
-            return `[ref-${cache.indexOf(value)}]`;
+            return `[ref=.]`;
           }
 
           cache.push(value);
@@ -191,7 +191,7 @@ test('if special objects are handled with a custom circular replacer', (t) => {
 
         return (key, value) => {
           if (value && typeof value === 'object' && ~cache.indexOf(value)) {
-            return cache.indexOf(value);
+            return '.';
           }
 
           cache.push(value);
