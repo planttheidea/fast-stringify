@@ -1,5 +1,4 @@
 import babel from "rollup-plugin-babel";
-import resolve from "rollup-plugin-node-resolve";
 import { terser } from "rollup-plugin-terser";
 
 import pkg from "./package.json";
@@ -25,11 +24,6 @@ const UMD_CONFIG = {
     sourcemap: true
   },
   plugins: [
-    resolve({
-      browser: true,
-      main: true,
-      module: true
-    }),
     babel({
       exclude: "node_modules/**",
       extensions: [".ts"]
