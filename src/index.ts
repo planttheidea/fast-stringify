@@ -12,6 +12,28 @@ function getReferenceKey(keys: string[], cutoff: number) {
   return keys.slice(0, cutoff).join('.') || '.';
 }
 
+/**
+ * @function getCutoff
+ *
+ * @description
+ * faster `Array.prototype.indexOf` implementation build for slicing / splicing
+ *
+ * @param array the array to match the value in
+ * @param value the value to match
+ * @returns the matching index, or -1
+ */
+function getCutoff(array: any[], value: any) {
+  const { length } = array;
+
+  for (let index = 0; index < length; ++index) {
+    if (array[index] === value) {
+      return index + 1;
+    }
+  }
+
+  return 0;
+}
+
 type StandardReplacer = (key: string, value: any) => any;
 type CircularReplacer = (key: string, value: any, referenceKey: string) => any;
 
@@ -38,23 +60,23 @@ function createReplacer(
   return function replace(key: string, value: any) {
     if (typeof value === 'object') {
       if (cache.length) {
-        const locationOfThis = cache.indexOf(this);
+        const thisCutoff = getCutoff(cache, this);
 
-        if (~locationOfThis) {
-          cache.splice(locationOfThis + 1);
-          keys.splice(locationOfThis + 1);
+        if (thisCutoff === 0) {
+          cache[cache.length] = this;
         } else {
-          cache.push(this);
+          cache.splice(thisCutoff);
+          keys.splice(thisCutoff);
         }
 
-        keys.push(key);
+        keys[keys.length] = key;
 
-        const locationOfValue = cache.indexOf(value);
+        const valueCutoff = getCutoff(cache, value);
 
-        if (~locationOfValue) {
+        if (valueCutoff !== 0) {
           return hasCircularReplacer
-            ? circularReplacer.call(this, key, value, getReferenceKey(keys, locationOfValue + 1))
-            : `[ref=${getReferenceKey(keys, locationOfValue + 1)}]`;
+            ? circularReplacer.call(this, key, value, getReferenceKey(keys, valueCutoff))
+            : `[ref=${getReferenceKey(keys, valueCutoff)}]`;
         }
       } else {
         cache[0] = value;
