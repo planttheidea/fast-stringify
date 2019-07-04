@@ -49,6 +49,7 @@
   },
   "plugins": ["@babel/plugin-proposal-json-strings"],
   "presets": [
+    "@babel/preset-typescript",
     [
       "@babel/preset-env",
       {
