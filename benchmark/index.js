@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
-const assertDeepStrictEqual = require('assert').deepStrictEqual;
-const Benchmark = require('benchmark');
-const React = require('react');
+const assertDeepStrictEqual = require("assert").deepStrictEqual;
+const Benchmark = require("benchmark");
+const React = require("react");
 
 function Foo(value) {
   this.value = value;
@@ -13,79 +13,88 @@ function Foo(value) {
 const shallowObject = {
   boolean: true,
   fn() {
-    return 'foo';
+    return "foo";
   },
   nan: NaN,
   nil: null,
   number: 123,
-  string: 'foo',
+  string: "foo",
   undef: undefined,
-  [Symbol('key')]: 'value'
+  [Symbol("key")]: "value",
 };
 
 const deepObject = Object.assign({}, shallowObject, {
-  array: ['foo', {bar: 'baz'}],
-  buffer: new Buffer('this is a test buffer'),
-  error: new Error('boom'),
-  foo: new Foo('value'),
-  map: new Map().set('foo', {bar: 'baz'}),
-  object: {foo: {bar: 'baz'}},
-  promise: Promise.resolve('foo'),
+  array: ["foo", { bar: "baz" }],
+  buffer: new Buffer("this is a test buffer"),
+  error: new Error("boom"),
+  foo: new Foo("value"),
+  map: new Map().set("foo", { bar: "baz" }),
+  object: { foo: { bar: "baz" } },
+  promise: Promise.resolve("foo"),
   regexp: /foo/,
-  set: new Set().add('foo').add({bar: 'baz'}),
-  weakmap: new WeakMap([[{}, 'foo'], [{}, 'bar']]),
-  weakset: new WeakSet([{}, {}])
+  set: new Set().add("foo").add({ bar: "baz" }),
+  weakmap: new WeakMap([
+    [{}, "foo"],
+    [{}, "bar"],
+  ]),
+  weakset: new WeakSet([{}, {}]),
 });
 
 const circularObject = Object.assign({}, deepObject, {
   deeply: {
     nested: {
-      reference: {}
-    }
-  }
+      reference: {},
+    },
+  },
 });
 
+const stableObject = {
+  c: 8,
+  b: [{ z: 7, y: 6, x: 4, v: 2, "!v": 3 }, 7],
+  a: 3,
+};
+
 const specialObject = Object.assign({}, deepObject, {
-  react: React.createElement('main', {
+  react: React.createElement("main", {
     children: [
-      React.createElement('h1', {children: 'Title'}),
-      React.createElement('p', {children: 'Content'}),
-      React.createElement('p', {children: 'Content'}),
-      React.createElement('p', {children: 'Content'}),
-      React.createElement('p', {children: 'Content'}),
-      React.createElement('div', {
+      React.createElement("h1", { children: "Title" }),
+      React.createElement("p", { children: "Content" }),
+      React.createElement("p", { children: "Content" }),
+      React.createElement("p", { children: "Content" }),
+      React.createElement("p", { children: "Content" }),
+      React.createElement("div", {
         children: [
-          React.createElement('div', {
-            children: 'Item',
-            style: {flex: '1 1 auto'}
+          React.createElement("div", {
+            children: "Item",
+            style: { flex: "1 1 auto" },
           }),
-          React.createElement('div', {
-            children: 'Item',
-            style: {flex: '1 1 0'}
-          })
+          React.createElement("div", {
+            children: "Item",
+            style: { flex: "1 1 0" },
+          }),
         ],
-        style: {display: 'flex'}
-      })
-    ]
-  })
+        style: { display: "flex" },
+      }),
+    ],
+  }),
 });
 
 circularObject.deeply.nested.reference = circularObject;
 
 const packages = {
-  decircularize: (value) => JSON.stringify(require('decircularize')(value)),
-  'fast-json-stable-stringify': require('fast-json-stable-stringify'),
-  'fast-stringify': require('../dist/index.cjs'),
-  'json-cycle': (value) => JSON.stringify(require('json-cycle').decycle(value)),
-  'json-stable-stringify': require('json-stable-stringify'),
-  'json-stringify-safe': require('json-stringify-safe')
+  decircularize: (value) => JSON.stringify(require("decircularize")(value)),
+  "fast-json-stable-stringify": require("fast-json-stable-stringify"),
+  "fast-stringify": require("../dist/index.cjs"),
+  "json-cycle": (value) => JSON.stringify(require("json-cycle").decycle(value)),
+  "json-stable-stringify": require("json-stable-stringify"),
+  "json-stringify-safe": require("json-stringify-safe"),
 };
 
-console.log('');
+console.log("");
 
 const runShallowSuite = () => {
-  console.log('Running shallow object performance comparison...');
-  console.log('');
+  console.log("Running shallow object performance comparison...");
+  console.log("");
 
   const suite = new Benchmark.Suite();
 
@@ -95,24 +104,26 @@ const runShallowSuite = () => {
 
   return new Promise((resolve) => {
     suite
-      .on('cycle', (event) => {
+      .on("cycle", (event) => {
         const result = event.target.toString();
 
         return console.log(result);
       })
-      .on('complete', function() {
-        console.log('');
-        console.log(`...complete, the fastest is ${this.filter('fastest').map('name')}.`);
+      .on("complete", function () {
+        console.log("");
+        console.log(
+          `...complete, the fastest is ${this.filter("fastest").map("name")}.`
+        );
 
         resolve();
       })
-      .run({async: true});
+      .run({ async: true });
   });
 };
 
 const runDeepSuite = () => {
-  console.log('Running deep object performance comparison...');
-  console.log('');
+  console.log("Running deep object performance comparison...");
+  console.log("");
 
   const suite = new Benchmark.Suite();
 
@@ -122,24 +133,26 @@ const runDeepSuite = () => {
 
   return new Promise((resolve) => {
     suite
-      .on('cycle', (event) => {
+      .on("cycle", (event) => {
         const result = event.target.toString();
 
         return console.log(result);
       })
-      .on('complete', function() {
-        console.log('');
-        console.log(`...complete, the fastest is ${this.filter('fastest').map('name')}.`);
+      .on("complete", function () {
+        console.log("");
+        console.log(
+          `...complete, the fastest is ${this.filter("fastest").map("name")}.`
+        );
 
         resolve();
       })
-      .run({async: true});
+      .run({ async: true });
   });
 };
 
 const runCircularSuite = () => {
-  console.log('Running circular object performance comparison...');
-  console.log('');
+  console.log("Running circular object performance comparison...");
+  console.log("");
 
   const suite = new Benchmark.Suite();
 
@@ -149,24 +162,26 @@ const runCircularSuite = () => {
 
   return new Promise((resolve) => {
     suite
-      .on('cycle', (event) => {
+      .on("cycle", (event) => {
         const result = event.target.toString();
 
         return console.log(result);
       })
-      .on('complete', function() {
-        console.log('');
-        console.log(`...complete, the fastest is ${this.filter('fastest').map('name')}.`);
+      .on("complete", function () {
+        console.log("");
+        console.log(
+          `...complete, the fastest is ${this.filter("fastest").map("name")}.`
+        );
 
         resolve();
       })
-      .run({async: true});
+      .run({ async: true });
   });
 };
 
 const runSpecialSuite = () => {
-  console.log('Running special values object performance comparison...');
-  console.log('');
+  console.log("Running special values object performance comparison...");
+  console.log("");
 
   const suite = new Benchmark.Suite();
 
@@ -176,22 +191,60 @@ const runSpecialSuite = () => {
 
   return new Promise((resolve) => {
     suite
-      .on('cycle', (event) => {
+      .on("cycle", (event) => {
         const result = event.target.toString();
 
         return console.log(result);
       })
-      .on('complete', function() {
-        console.log('');
-        console.log(`...complete, the fastest is ${this.filter('fastest').map('name')}.`);
+      .on("complete", function () {
+        console.log("");
+        console.log(
+          `...complete, the fastest is ${this.filter("fastest").map("name")}.`
+        );
 
         resolve();
       })
-      .run({async: true});
+      .run({ async: true });
+  });
+};
+
+const runStableSuite = () => {
+  console.log("Running stable output comparison...");
+  console.log("");
+
+  const suite = new Benchmark.Suite();
+
+  suite.add("json-fast-stable-stringify", () =>
+    packages["fast-json-stable-stringify"](stableObject)
+  );
+  suite.add("fast-stringify", () =>
+    packages["fast-json-stable-stringify"](stableObject, { stable: true })
+  );
+  suite.add("json-stable-stringify", () =>
+    packages["json-stable-stringify"](stableObject)
+  );
+
+  return new Promise((resolve) => {
+    suite
+      .on("cycle", (event) => {
+        const result = event.target.toString();
+
+        return console.log(result);
+      })
+      .on("complete", function () {
+        console.log("");
+        console.log(
+          `...complete, the fastest is ${this.filter("fastest").map("name")}.`
+        );
+
+        resolve();
+      })
+      .run({ async: true });
   });
 };
 
 runShallowSuite()
   .then(runDeepSuite)
   .then(runCircularSuite)
-  .then(runSpecialSuite);
+  .then(runSpecialSuite)
+  .then(runStableSuite);

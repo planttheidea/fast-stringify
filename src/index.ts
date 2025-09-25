@@ -49,29 +49,38 @@ function getStableObject(object: any, stabilizer: Stabilizer | undefined) {
   const Constructor = object.constructor;
 
   if (
+    // Created via `Object.create(null)`
     Constructor != null &&
+    // Plain old JavaScript object
     Constructor !== Object &&
+    // Other type of global object (Array, Date, Map, etc.)
     globalThis[Constructor.name as keyof typeof globalThis] != null
   ) {
+    // Only sort plain objects.s
     return object;
   }
 
-  const options = {
-    get: (key: string) => object[key],
-  };
+  let sorted: string[];
 
-  const sorted = stabilizer
-    ? Object.entries(object).sort((a, b) =>
-        stabilizer(
-          { key: a[0], value: a[1] },
-          { key: b[0], value: b[1] },
-          options
-        )
+  if (stabilizer) {
+    const options = {
+      get: (key: string) => object[key],
+    };
+
+    sorted = Object.keys(object).sort((a, b) =>
+      stabilizer(
+        { key: a, value: object[a] },
+        { key: b, value: object[b] },
+        options
       )
-    : Object.entries(object).sort((a, b) => a[0].localeCompare(b[0]));
+    );
+  } else {
+    sorted = Object.keys(object).sort((a, b) => a.localeCompare(b));
+  }
 
-  return sorted.reduce((acc, entry) => {
-    acc[entry[0]] = entry[1];
+  return sorted.reduce((acc, key) => {
+    acc[key] = object[key];
+
     return acc;
   }, {} as any);
 }
