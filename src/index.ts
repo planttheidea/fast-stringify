@@ -41,6 +41,8 @@ interface Options {
   stabilizer?: Stabilizer;
 }
 
+const DEFAULT_OPTIONS: Options = {};
+
 function getStableObject(object: any, stabilizer: Stabilizer | undefined) {
   if (object == null || typeof object !== "object") {
     return object;
@@ -185,6 +187,9 @@ function getCutoff(array: any[], value: any) {
  * @param [circularReplacer] a custom replacer function for handling circular values
  * @returns the stringified output
  */
-export default function stringify(value: any, options: Options = {}) {
+export default function stringify(
+  value: any,
+  options: Options = DEFAULT_OPTIONS
+) {
   return JSON.stringify(value, createReplacer(options), options.indent);
 }
