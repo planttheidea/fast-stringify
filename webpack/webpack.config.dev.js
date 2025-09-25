@@ -1,65 +1,47 @@
-'use strict';
+/* eslint-disable @typescript-eslint/no-var-requires */
 
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const webpack = require('webpack');
+import ESLintWebpackPlugin from "eslint-webpack-plugin";
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import path from "path";
+import { fileURLToPath } from "url";
+import webpack from "webpack";
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const PORT = 3000;
 
-module.exports = {
+export default {
+  cache: true,
+
   devServer: {
-    contentBase: path.join(ROOT, 'dist'),
-    host: 'localhost',
-    inline: true,
-    lazy: false,
-    noInfo: false,
+    host: "localhost",
     port: PORT,
-    quiet: false,
-    stats: {
-      colors: true,
-      progress: true,
-    },
   },
 
-  devtool: '#source-map',
+  devtool: "source-map",
 
-  entry: [path.resolve(ROOT, 'DEV_ONLY', 'index.tsx')],
+  entry: [path.resolve(ROOT, "DEV_ONLY", "index.tsx")],
 
-  mode: 'development',
+  mode: "development",
 
   module: {
     rules: [
       {
-        enforce: 'pre',
-        include: [path.resolve(ROOT, 'src')],
-        loader: 'eslint-loader',
-        options: {
-          configFile: '.eslintrc',
-          failOnError: true,
-          failOnWarning: false,
-          fix: true,
-          formatter: require('eslint-friendly-formatter'),
-        },
-        test: /\.(js|ts|tsx)$/,
-      },
-      {
-        include: [path.resolve(ROOT, 'DEV_ONLY'), path.resolve(ROOT, 'src')],
-        loader: 'babel-loader',
+        include: [path.resolve(ROOT, "DEV_ONLY"), path.resolve(ROOT, "src")],
+        loader: "babel-loader",
         options: {
           plugins: [
             [
-              '@babel/plugin-transform-runtime',
+              "@babel/plugin-transform-runtime",
               {
                 corejs: false,
                 helpers: false,
                 regenerator: true,
-                useESModules: true
-              }
+                useESModules: true,
+              },
             ],
-            '@babel/plugin-proposal-class-properties'
+            ["@babel/plugin-proposal-class-properties", { loose: true }],
           ],
-          presets: ['@babel/preset-react'],
+          presets: ["@babel/preset-react"],
         },
         test: /\.(js|ts|tsx)$/,
       },
@@ -67,17 +49,21 @@ module.exports = {
   },
 
   output: {
-    filename: 'fast-stringify.js',
-    library: 'fastStringify',
-    libraryTarget: 'umd',
-    path: path.resolve(ROOT, 'dist'),
+    filename: "fast-equals.js",
+    library: "fastEquals",
+    libraryTarget: "umd",
+    path: path.resolve(ROOT, "dist"),
     publicPath: `http://localhost:${PORT}/`,
     umdNamedDefine: true,
   },
 
-  plugins: [new webpack.EnvironmentPlugin(['NODE_ENV']), new HtmlWebpackPlugin()],
+  plugins: [
+    new ESLintWebpackPlugin(),
+    new webpack.EnvironmentPlugin(["NODE_ENV"]),
+    new HtmlWebpackPlugin(),
+  ],
 
   resolve: {
-    extensions: [".ts", ".tsx", ".js"]
+    extensions: [".tsx", ".ts", ".js"],
   },
 };
