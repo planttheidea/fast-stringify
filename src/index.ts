@@ -169,6 +169,6 @@ function getCutoff(array: any[], value: any) {
 export default function stringify(
   value: any,
   options: Options = DEFAULT_OPTIONS
-) {
+): string {
   return JSON.stringify(value, createReplacer(options), options.indent);
 }
