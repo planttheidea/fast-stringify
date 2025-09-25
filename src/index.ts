@@ -4,6 +4,9 @@ interface StabilizerItem {
 }
 
 interface StabilizerOptions {
+  /**
+   * Get the value for a given key.
+   */
   get: (key: string) => any;
 }
 
@@ -17,7 +20,10 @@ type CircularReplacer = (key: string, value: any, referenceKey: string) => any;
 
 interface Options {
   /**
-   * String value to replace circular references with.
+   * Function to derive string value to replace circular references with.
+   *
+   * If not provided, circular references are replaced with `[ref=##]` where `##` is a
+   * dot-separated path to the original reference (e.g. `[ref=.nested.obj]`).
    */
   circularReplacer?: CircularReplacer;
   /**
@@ -33,10 +39,9 @@ interface Options {
    */
   stable?: boolean;
   /**
-   * Custom stabilizer function for stable key ordering.
+   * Custom stabilizer function for stable key ordering when the `stable` option is set to `true`.
    *
-   * @NOTE
-   * Only used if `stable` is true.
+   * If not provided, keys are sorted in ascending order using `String.prototype.localeCompare`.
    */
   stabilizer?: Stabilizer;
 }
@@ -62,37 +67,35 @@ function getStableObject(object: any, stabilizer: Stabilizer | undefined) {
     return object;
   }
 
-  let sorted: string[];
+  let sorter: ((a: any, b: any) => number) | undefined;
 
   if (stabilizer) {
     const options = {
       get: (key: string) => object[key],
     };
 
-    sorted = Object.keys(object).sort((a, b) =>
+    sorter = (a, b) =>
       stabilizer(
         { key: a, value: object[a] },
         { key: b, value: object[b] },
         options
-      )
-    );
-  } else {
-    sorted = Object.keys(object).sort((a, b) => a.localeCompare(b));
+      );
   }
 
-  return sorted.reduce((acc, key) => {
-    acc[key] = object[key];
+  const sorted = Object.keys(object).sort(sorter);
+  const sortedObject: Record<string, any> = {};
 
-    return acc;
-  }, {} as any);
+  for (let index = 0; index < sorted.length; ++index) {
+    const key = sorted[index]!;
+
+    sortedObject[key] = object[key];
+  }
+
+  return sortedObject;
 }
 
 /**
- * create a replacer method that handles circular values
- *
- * @param [replacer] a custom replacer to use for non-circular values
- * @param [circularReplacer] a custom replacer to use for circular methods
- * @returns the value to stringify
+ * Create a replacer method that handles circular values.
  */
 function createReplacer({
   replacer,
@@ -125,14 +128,11 @@ function createReplacer({
         const valueCutoff = getCutoff(cache, value);
 
         if (valueCutoff !== 0) {
+          const referenceKey = keys.slice(0, valueCutoff).join(".") || ".";
+
           return hasCircularReplacer
-            ? circularReplacer.call(
-                this,
-                key,
-                value,
-                getReferenceKey(keys, valueCutoff)
-              )
-            : `[ref=${getReferenceKey(keys, valueCutoff)}]`;
+            ? circularReplacer.call(this, key, value, referenceKey)
+            : `[ref=${referenceKey}]`;
         }
       } else {
         cache[0] = value;
@@ -149,22 +149,7 @@ function createReplacer({
 }
 
 /**
- * get the reference key for the circular value
- *
- * @param keys the keys to build the reference key from
- * @param cutoff the maximum number of keys to include
- * @returns the reference key
- */
-function getReferenceKey(keys: string[], cutoff: number) {
-  return keys.slice(0, cutoff).join(".") || ".";
-}
-
-/**
- * faster `Array.prototype.indexOf` implementation build for slicing / splicing
- *
- * @param array the array to match the value in
- * @param value the value to match
- * @returns the matching index, or -1
+ * Faster `Array.prototype.indexOf` implementation build for slicing / splicing.s
  */
 function getCutoff(array: any[], value: any) {
   const { length } = array;
@@ -179,13 +164,7 @@ function getCutoff(array: any[], value: any) {
 }
 
 /**
- * strinigifer that handles circular values
- *
- * @param the value to stringify
- * @param [replacer] a custom replacer function for handling standard values
- * @param [indent] the number of spaces to indent the output by
- * @param [circularReplacer] a custom replacer function for handling circular values
- * @returns the stringified output
+ * Stringifier that handles circular values.
  */
 export default function stringify(
   value: any,
