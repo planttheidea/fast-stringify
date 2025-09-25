@@ -119,26 +119,24 @@ console.log(safeStringify(window));
 console.groupEnd();
 
 console.group("object of many types");
-console.log(stringify(object, undefined, 2));
+console.log(stringify(object, { indent: 2 }));
 console.log(safeStringify(object, null, 2));
 console.groupEnd();
 
 console.group("custom replacer");
 console.log(
-  stringify(object.arrayBuffer, (_key, value) =>
-    Buffer.from(value).toString("utf8")
-  )
+  stringify(object.arrayBuffer, {
+    replacer: (_key, value) =>
+      String.fromCharCode.apply(null, Array.from(new Uint16Array(value))),
+  })
 );
 console.groupEnd();
 
 console.group("custom circular replacer");
 console.log(
-  stringify(
-    new Circular("foo"),
-    undefined,
-    undefined,
-    (_key, _value, refCount) => `Ref-${refCount}`
-  )
+  stringify(new Circular("foo"), {
+    circularReplacer: (_key, _value, refCount) => `Ref-${refCount}`,
+  })
 );
 console.groupEnd();
 
@@ -191,7 +189,7 @@ console.groupEnd();
 // });
 
 console.group("other object of many types");
-console.log(stringify(object, undefined, 2));
+console.log(stringify(object, { indent: 2 }));
 console.log(safeStringify(object, null, 2));
 console.groupEnd();
 
@@ -210,6 +208,6 @@ similar.baz.foo = similar.foo;
 similar.baz.baz = similar.baz;
 
 console.group("object of shared types");
-console.log(stringify(similar, undefined, 2));
+console.log(stringify(similar, { indent: 2 }));
 console.log(safeStringify(similar, null, 2));
 console.groupEnd();
