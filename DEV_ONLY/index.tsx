@@ -1,28 +1,32 @@
 // external dependencies
-import React from 'react';
+import React from "react";
 
 // src
-import stringify from '../src';
-import safeStringify from 'json-stringify-safe';
+import stringify from "../src";
+import safeStringify from "json-stringify-safe";
 
-document.body.style.backgroundColor = '#1d1d1d';
-document.body.style.color = '#d5d5d5';
-document.body.style.margin = '0px';
-document.body.style.padding = '0px';
+document.body.style.backgroundColor = "#1d1d1d";
+document.body.style.color = "#d5d5d5";
+document.body.style.margin = "0px";
+document.body.style.padding = "0px";
 
-const div = document.createElement('div');
+const div = document.createElement("div");
 
-div.textContent = 'Check the console for details.';
+div.textContent = "Check the console for details.";
 
 document.body.appendChild(div);
 
-function Circular(value) {
-  this.deeply = {
-    nested: {
-      reference: this,
-      value,
-    },
-  };
+class Circular {
+  deeply: any;
+
+  constructor(value: any) {
+    this.deeply = {
+      nested: {
+        reference: this,
+        value,
+      },
+    };
+  }
 }
 
 const StatelessComponent = () => <div>test</div>;
@@ -34,7 +38,7 @@ type State = {
 
 class StatefulComponent extends React.Component<Props, State> {
   state: State = {
-    foo: 'bar',
+    foo: "bar",
   };
 
   render() {
@@ -42,24 +46,24 @@ class StatefulComponent extends React.Component<Props, State> {
   }
 }
 
-const a = {
-  foo: 'bar',
-};
+// const a = {
+//   foo: "bar",
+// };
 
-const b = {
-  a,
-};
+// const b = {
+//   a,
+// };
 
 const object = {
   arrayBuffer: new Uint16Array([1, 2, 3]).buffer,
-  string: 'foo',
+  string: "foo",
   date: new Date(2016, 8, 1),
   num: 12,
   bool: true,
   func() {
-    alert('y');
+    alert("y");
   },
-  *generator() {
+  *generator(): Generator<number, undefined, number> {
     let value = yield 1;
 
     yield value + 2;
@@ -67,33 +71,33 @@ const object = {
   undef: undefined,
   nil: null,
   obj: {
-    foo: 'bar',
+    foo: "bar",
   },
-  arr: ['foo', 'bar'],
-  el: document.createElement('div'),
+  arr: ["foo", "bar"],
+  el: document.createElement("div"),
   math: Math,
   regexp: /test/,
-  circular: new Circular('foo'),
+  circular: new Circular("foo"),
   infinity: Infinity,
 
   // comment out for older browser testing
-  symbol: Symbol('test'),
+  symbol: Symbol("test"),
   dataView: new DataView(new ArrayBuffer(2)),
-  err: new Error('Stuff'),
+  err: new Error("Stuff"),
   float32Array: new Float32Array([1, 2, 3]),
   float64Array: new Float64Array([1, 2, 3]),
   int16Array: new Int16Array([1, 2, 3]),
   int32Array: new Int32Array([1, 2, 3]),
   int8Array: new Int8Array([1, 2, 3]),
-  map: new Map().set(true, 7).set({ foo: 3 }, ['abc']),
+  map: new Map().set(true, 7).set({ foo: 3 }, ["abc"]),
   promise: Promise.resolve(1),
-  set: new Set().add('foo').add(2),
+  set: new Set().add("foo").add(2),
   uint16Array: new Uint16Array([1, 2, 3]),
   uint32Array: new Uint32Array([1, 2, 3]),
   uint8Array: new Uint8Array([1, 2, 3]),
   uint8ClampedArray: new Uint8ClampedArray([1, 2, 3]),
-  weakMap: new WeakMap().set({}, 7).set({ foo: 3 }, ['abc']),
-  weakSet: new WeakSet().add({}).add({ foo: 'bar' }),
+  weakMap: new WeakMap().set({}, 7).set({ foo: 3 }, ["abc"]),
+  weakSet: new WeakSet().add({}).add({ foo: "bar" }),
   doc: document,
   win: window,
 
@@ -104,78 +108,90 @@ const object = {
   ReactStatelessElement: <StatelessComponent />,
 };
 
-console.group('circular');
-console.log(stringify(new Circular('foo')));
-console.log(safeStringify(new Circular('foo')));
+console.group("circular");
+console.log(stringify(new Circular("foo")));
+console.log(safeStringify(new Circular("foo")));
 console.groupEnd();
 
-console.group('window');
+console.group("window");
 console.log(stringify(window));
 console.log(safeStringify(window));
 console.groupEnd();
 
-console.group('object of many types');
-console.log(stringify(object, null, 2));
+console.group("object of many types");
+console.log(stringify(object, undefined, 2));
 console.log(safeStringify(object, null, 2));
 console.groupEnd();
 
-console.group('custom replacer');
-console.log(stringify(object.arrayBuffer, (key, value) => Buffer.from(value).toString('utf8')));
-console.groupEnd();
-
-console.group('custom circular replacer');
+console.group("custom replacer");
 console.log(
-  stringify(new Circular('foo'), null, null, (key, value, refCount) => `Ref-${refCount}`),
+  stringify(object.arrayBuffer, (_key, value) =>
+    Buffer.from(value).toString("utf8")
+  )
 );
 console.groupEnd();
 
-class Foo {
-  value: string;
+console.group("custom circular replacer");
+console.log(
+  stringify(
+    new Circular("foo"),
+    undefined,
+    undefined,
+    (_key, _value, refCount) => `Ref-${refCount}`
+  )
+);
+console.groupEnd();
 
-  constructor(value: string) {
-    this.value = value;
+// class Foo {
+//   value: string;
 
-    return this;
-  }
-}
+//   constructor(value: string) {
+//     this.value = value;
 
-const shallowObject = {
-  boolean: true,
-  fn() {
-    return 'foo';
-  },
-  nan: NaN,
-  nil: null,
-  number: 123,
-  string: 'foo',
-  undef: undefined,
-  [Symbol('key')]: 'value',
-};
+//     return this;
+//   }
+// }
 
-const deepObject = Object.assign({}, shallowObject, {
-  array: ['foo', { bar: 'baz' }],
-  buffer: new Buffer('this is a test buffer'),
-  error: new Error('boom'),
-  foo: new Foo('value'),
-  map: new Map().set('foo', { bar: 'baz' }),
-  object: { foo: { bar: 'baz' } },
-  promise: Promise.resolve('foo'),
-  regexp: /foo/,
-  set: new Set().add('foo').add({ bar: 'baz' }),
-  weakmap: new WeakMap([[{}, 'foo'], [{}, 'bar']]),
-  weakset: new WeakSet([{}, {}]),
-});
+// const shallowObject = {
+//   boolean: true,
+//   fn() {
+//     return "foo";
+//   },
+//   nan: NaN,
+//   nil: null,
+//   number: 123,
+//   string: "foo",
+//   undef: undefined,
+//   [Symbol("key")]: "value",
+// };
 
-const circularObject = Object.assign({}, deepObject, {
-  deeply: {
-    nested: {
-      reference: {},
-    },
-  },
-});
+// const deepObject = Object.assign({}, shallowObject, {
+//   array: ["foo", { bar: "baz" }],
+//   buffer: new Buffer("this is a test buffer"),
+//   error: new Error("boom"),
+//   foo: new Foo("value"),
+//   map: new Map().set("foo", { bar: "baz" }),
+//   object: { foo: { bar: "baz" } },
+//   promise: Promise.resolve("foo"),
+//   regexp: /foo/,
+//   set: new Set().add("foo").add({ bar: "baz" }),
+//   weakmap: new WeakMap([
+//     [{}, "foo"],
+//     [{}, "bar"],
+//   ]),
+//   weakset: new WeakSet([{}, {}]),
+// });
 
-console.group('other object of many types');
-console.log(stringify(object, null, 2));
+// const circularObject = Object.assign({}, deepObject, {
+//   deeply: {
+//     nested: {
+//       reference: {},
+//     },
+//   },
+// });
+
+console.group("other object of many types");
+console.log(stringify(object, undefined, 2));
 console.log(safeStringify(object, null, 2));
 console.groupEnd();
 
@@ -187,13 +203,13 @@ const similar = {
   baz: {
     baz: null,
     foo: null,
-  },
+  } as { baz: any; foo: any },
 };
 
 similar.baz.foo = similar.foo;
 similar.baz.baz = similar.baz;
 
-console.group('object of shared types');
-console.log(stringify(similar, null, 2));
+console.group("object of shared types");
+console.log(stringify(similar, undefined, 2));
 console.log(safeStringify(similar, null, 2));
 console.groupEnd();

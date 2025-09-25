@@ -1,7 +1,4 @@
 /**
- * @function getReferenceKey
- *
- * @description
  * get the reference key for the circular value
  *
  * @param keys the keys to build the reference key from
@@ -9,13 +6,10 @@
  * @returns the reference key
  */
 function getReferenceKey(keys: string[], cutoff: number) {
-  return keys.slice(0, cutoff).join('.') || '.';
+  return keys.slice(0, cutoff).join(".") || ".";
 }
 
 /**
- * @function getCutoff
- *
- * @description
  * faster `Array.prototype.indexOf` implementation build for slicing / splicing
  *
  * @param array the array to match the value in
@@ -38,9 +32,6 @@ type StandardReplacer = (key: string, value: any) => any;
 type CircularReplacer = (key: string, value: any, referenceKey: string) => any;
 
 /**
- * @function createReplacer
- *
- * @description
  * create a replacer method that handles circular values
  *
  * @param [replacer] a custom replacer to use for non-circular values
@@ -49,16 +40,16 @@ type CircularReplacer = (key: string, value: any, referenceKey: string) => any;
  */
 function createReplacer(
   replacer?: StandardReplacer,
-  circularReplacer?: CircularReplacer,
+  circularReplacer?: CircularReplacer
 ): StandardReplacer {
-  const hasReplacer = typeof replacer === 'function';
-  const hasCircularReplacer = typeof circularReplacer === 'function';
+  const hasReplacer = typeof replacer === "function";
+  const hasCircularReplacer = typeof circularReplacer === "function";
 
-  const cache = [];
-  const keys = [];
+  const cache: any[] = [];
+  const keys: any[] = [];
 
-  return function replace(key: string, value: any) {
-    if (typeof value === 'object') {
+  return function replace(this: any, key: string, value: any) {
+    if (typeof value === "object") {
       if (cache.length) {
         const thisCutoff = getCutoff(cache, this);
 
@@ -75,7 +66,12 @@ function createReplacer(
 
         if (valueCutoff !== 0) {
           return hasCircularReplacer
-            ? circularReplacer.call(this, key, value, getReferenceKey(keys, valueCutoff))
+            ? circularReplacer.call(
+                this,
+                key,
+                value,
+                getReferenceKey(keys, valueCutoff)
+              )
             : `[ref=${getReferenceKey(keys, valueCutoff)}]`;
         }
       } else {
@@ -89,9 +85,6 @@ function createReplacer(
 }
 
 /**
- * @function stringify
- *
- * @description
  * strinigifer that handles circular values
  *
  * @param the value to stringify
@@ -104,7 +97,11 @@ export default function stringify(
   value: any,
   replacer?: StandardReplacer,
   indent?: number,
-  circularReplacer?: CircularReplacer,
+  circularReplacer?: CircularReplacer
 ) {
-  return JSON.stringify(value, createReplacer(replacer, circularReplacer), indent);
+  return JSON.stringify(
+    value,
+    createReplacer(replacer, circularReplacer),
+    indent
+  );
 }
