@@ -49,6 +49,21 @@ const circularObject = Object.assign({}, deepObject, {
   },
 });
 
+circularObject.deeply.nested.reference = circularObject;
+
+const stableCircularObject = {
+  c: 8,
+  b: [{ z: 7, y: 6, x: 4, v: 2, "!v": 3 }, 7],
+  deeply: {
+    nested: {
+      reference: {},
+    },
+  },
+  a: 3,
+};
+
+stableCircularObject.deeply.nested.reference = stableCircularObject;
+
 const stableObject = {
   c: 8,
   b: [{ z: 7, y: 6, x: 4, v: 2, "!v": 3 }, 7],
@@ -79,8 +94,6 @@ const specialObject = Object.assign({}, deepObject, {
     ],
   }),
 });
-
-circularObject.deeply.nested.reference = circularObject;
 
 const packages = {
   decircularize: (value) => JSON.stringify(require("decircularize")(value)),
@@ -177,6 +190,16 @@ async function runSuites() {
     description: "objects that deeply reference themselves",
     name: "Circular objects",
     object: circularObject,
+    runner: (name, object, fn) => {
+      if (
+        name === "fast-json-stable-stringify" ||
+        name === "json-stable-stringify"
+      ) {
+        return () => fn(object, { cycles: true });
+      }
+
+      return () => fn(object);
+    },
   },
   {
     description: "custom constructors, react components, etc.",
@@ -189,6 +212,26 @@ async function runSuites() {
     name: "Stable objects",
     object: stableObject,
     runner: (name, object, fn) => {
+      if (name === "fast-stringify") {
+        return () => fn(object, { stable: true });
+      }
+
+      return () => fn(object);
+    },
+  },
+  {
+    description: "circular objects ensuring stability of keys",
+    ignoredPackages: ["decircularize", "json-cycle", "json-stringify-safe"],
+    name: "Stable objects with cycles",
+    object: stableCircularObject,
+    runner: (name, object, fn) => {
+      if (
+        name === "fast-json-stable-stringify" ||
+        name === "json-stable-stringify"
+      ) {
+        return () => fn(object, { cycles: true });
+      }
+
       if (name === "fast-stringify") {
         return () => fn(object, { stable: true });
       }

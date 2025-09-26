@@ -116,17 +116,17 @@ Fastest was "fast-stringify".
 ### Circular objects
 
 ```bash
-FAILED: fast-json-stable-stringify ("Converting circular structure to JSON")
-FAILED: json-stable-stringify ("Converting circular structure to JSON")
-┌─────────────────────┬─────────┬─────────────────┐
-│ (index)             │ Ops/sec │ Margin of error │
-├─────────────────────┼─────────┼─────────────────┤
-│ fast-stringify      │ 166143  │ '± 0.02%'       │
-│ json-stringify-safe │ 127393  │ '± 0.02%'       │
-│ decircularize       │ 55939   │ '± 0.05%'       │
-│ json-cycle          │ 1048    │ '± 0.19%'       │
-└─────────────────────┴─────────┴─────────────────┘
-Fastest was "fast-stringify".
+┌────────────────────────────┬─────────┬─────────────────┐
+│ (index)                    │ Ops/sec │ Margin of error │
+├────────────────────────────┼─────────┼─────────────────┤
+│ fast-json-stable-stringify │ 168969  │ '± 0.03%'       │
+│ fast-stringify             │ 167436  │ '± 0.02%'       │
+│ json-stringify-safe        │ 126559  │ '± 0.03%'       │
+│ json-stable-stringify      │ 102818  │ '± 0.03%'       │
+│ decircularize              │ 56722   │ '± 0.04%'       │
+│ json-cycle                 │ 1051    │ '± 0.18%'       │
+└────────────────────────────┴─────────┴─────────────────┘
+Fastest was "fast-json-stable-stringify".
 ```
 
 ### Special objects
@@ -151,9 +151,22 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-json-stable-stringify │ 687124  │ '± 0.02%'       │
-│ fast-stringify             │ 552092  │ '± 0.02%'       │
-│ json-stable-stringify      │ 426991  │ '± 0.02%'       │
+│ fast-json-stable-stringify │ 718969  │ '± 0.02%'       │
+│ fast-stringify             │ 545528  │ '± 0.02%'       │
+│ json-stable-stringify      │ 417172  │ '± 0.02%'       │
+└────────────────────────────┴─────────┴─────────────────┘
+Fastest was "fast-json-stable-stringify".
+```
+
+### Stable objects with cycles
+
+```bash
+┌────────────────────────────┬─────────┬─────────────────┐
+│ (index)                    │ Ops/sec │ Margin of error │
+├────────────────────────────┼─────────┼─────────────────┤
+│ fast-json-stable-stringify │ 477040  │ '± 0.02%'       │
+│ fast-stringify             │ 381688  │ '± 0.02%'       │
+│ json-stable-stringify      │ 309861  │ '± 0.02%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-json-stable-stringify".
 ```
