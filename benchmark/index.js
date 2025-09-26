@@ -123,10 +123,8 @@ async function runSuite(name, benchmark) {
 
   await benchmark.run();
 
-  const taskResults = sortBy(
-    benchmark.tasks,
-    ({ result }) => result.mean
-  ).reduce((results, { name, result }, index) => {
+  const sortedTasks = sortBy(benchmark.tasks, ({ result }) => result.mean);
+  const taskResults = sortedTasks.reduce((results, { name, result }, index) => {
     if (result.error) {
       console.warn(`FAILED: ${name} ("${result.error.message}")`);
 
@@ -134,7 +132,7 @@ async function runSuite(name, benchmark) {
     }
 
     results[name] = {
-      "Ops/sec": +result.hz.toFixed(3),
+      "Ops/sec": Math.floor(+result.hz),
       "Margin of error": `\xb1 ${result.throughput.rme.toFixed(2)}%`,
     };
 
@@ -142,6 +140,7 @@ async function runSuite(name, benchmark) {
   }, {});
 
   console.table(taskResults);
+  console.log(`Fastest was "${sortedTasks[0].name}".`);
 }
 
 async function runSuites() {
