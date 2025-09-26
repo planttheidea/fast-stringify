@@ -102,6 +102,7 @@ const packages = {
   "json-cycle": (value) => JSON.stringify(require("json-cycle").decycle(value)),
   "json-stable-stringify": require("json-stable-stringify"),
   "json-stringify-safe": require("json-stringify-safe"),
+  superjson: require("superjson").SuperJSON.stringify,
 };
 
 const benchmarks = {};
@@ -208,7 +209,12 @@ async function runSuites() {
   },
   {
     description: "objects ensuring stability of keys",
-    ignoredPackages: ["decircularize", "json-cycle", "json-stringify-safe"],
+    ignoredPackages: [
+      "decircularize",
+      "json-cycle",
+      "json-stringify-safe",
+      "superjson",
+    ],
     name: "Stable objects",
     object: stableObject,
     runner: (name, object, fn) => {
@@ -221,8 +227,13 @@ async function runSuites() {
   },
   {
     description: "circular objects ensuring stability of keys",
-    ignoredPackages: ["decircularize", "json-cycle", "json-stringify-safe"],
-    name: "Stable objects with cycles",
+    ignoredPackages: [
+      "decircularize",
+      "json-cycle",
+      "json-stringify-safe",
+      "superjson",
+    ],
+    name: "Stable circular objects",
     object: stableCircularObject,
     runner: (name, object, fn) => {
       if (
