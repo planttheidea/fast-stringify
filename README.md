@@ -83,45 +83,70 @@ const stringify = require("fast-stringify");
 
 ### Simple objects
 
-**fast-stringify x 1,104,098 ops/sec ±0.65% (90 runs sampled)**
-fast-json-stable-stringify x 996,823 ops/sec ±0.25% (99 runs sampled)
-json-stringify-safe x 746,892 ops/sec ±0.30% (100 runs sampled)
-json-stable-stringify x 707,415 ops/sec ±0.24% (99 runs sampled)
-decircularize x 376,122 ops/sec ±0.18% (95 runs sampled)
-json-cycle x 6,479 ops/sec ±0.16% (91 runs sampled)
+```bash
+┌────────────────────────────┬─────────┬─────────────────┐
+│ (index)                    │ Ops/sec │ Margin of error │
+├────────────────────────────┼─────────┼─────────────────┤
+│ fast-stringify             │ 1019882 │ '± 0.01%'       │
+│ fast-json-stable-stringify │ 912185  │ '± 0.02%'       │
+│ json-stringify-safe        │ 703476  │ '± 0.02%'       │
+│ json-stable-stringify      │ 672985  │ '± 0.02%'       │
+│ decircularize              │ 379974  │ '± 0.02%'       │
+│ json-cycle                 │ 6760    │ '± 0.09%'       │
+└────────────────────────────┴─────────┴─────────────────┘
+Fastest was "fast-stringify".
+
+```
 
 ### Complex objects
 
-**fast-stringify x 197,784 ops/sec ±0.21% (97 runs sampled)**
-fast-json-stable-stringify x 197,368 ops/sec ±0.15% (97 runs sampled)
-json-stringify-safe x 141,750 ops/sec ±0.17% (100 runs sampled)
-json-stable-stringify x 117,201 ops/sec ±0.23% (94 runs sampled)
-decircularize x 61,345 ops/sec ±0.17% (97 runs sampled)
-json-cycle x 1,059 ops/sec ±0.15% (88 runs sampled)
+```bash
+┌────────────────────────────┬─────────┬─────────────────┐
+│ (index)                    │ Ops/sec │ Margin of error │
+├────────────────────────────┼─────────┼─────────────────┤
+│ fast-stringify             │ 204278  │ '± 0.02%'       │
+│ fast-json-stable-stringify │ 198841  │ '± 0.02%'       │
+│ json-stringify-safe        │ 148390  │ '± 0.02%'       │
+│ json-stable-stringify      │ 116298  │ '± 0.03%'       │
+│ decircularize              │ 63006   │ '± 0.04%'       │
+│ json-cycle                 │ 1138    │ '± 0.16%'       │
+└────────────────────────────┴─────────┴─────────────────┘
+Fastest was "fast-stringify".
 
-### Circular objects
-
-**fast-stringify x 174,982 ops/sec ±0.14% (101 runs sampled)**
-json-stringify-safe x 122,812 ops/sec ±0.14% (98 runs sampled)
-decircularize x 54,176 ops/sec ±0.25% (96 runs sampled)
-json-cycle x 987 ops/sec ±0.28% (86 runs sampled)
-fast-json-stable-stringify: ERROR
-json-stable-stringify: ERROR
+```
 
 ### Special objects
 
-**fast-stringify x 72,741 ops/sec ±0.22% (98 runs sampled)**
-fast-json-stable-stringify x 54,683 ops/sec ±0.15% (101 runs sampled)
-json-stringify-safe x 55,118 ops/sec ±0.31% (97 runs sampled)
-json-stable-stringify x 36,669 ops/sec ±0.14% (101 runs sampled)
-decircularize x 21,645 ops/sec ±0.27% (100 runs sampled)
-json-cycle x 376 ops/sec ±0.18% (82 runs sampled)
+```bash
+FAILED: fast-json-stable-stringify ("Converting circular structure to JSON")
+FAILED: json-stable-stringify ("Converting circular structure to JSON")
+┌─────────────────────┬─────────┬─────────────────┐
+│ (index)             │ Ops/sec │ Margin of error │
+├─────────────────────┼─────────┼─────────────────┤
+│ fast-stringify      │ 162296  │ '± 0.02%'       │
+│ json-stringify-safe │ 126350  │ '± 0.02%'       │
+│ decircularize       │ 57248   │ '± 0.04%'       │
+│ json-cycle          │ 1066    │ '± 0.17%'       │
+└─────────────────────┴─────────┴─────────────────┘
+Fastest was "fast-stringify".
+```
 
-### Stable objects
+#### Special objects
 
-json-fast-stable-stringify x 818,266 ops/sec ±0.66% (95 runs sampled)
-**fast-stringify x 579,210 ops/sec ±0.32% (95 runs sampled)**
-json-stable-stringify x 478,709 ops/sec ±0.29% (99 runs sampled)
+```bash
+Objects with special values (custom constructors, react components, etc.):
+┌────────────────────────────┬─────────┬─────────────────┐
+│ (index)                    │ Ops/sec │ Margin of error │
+├────────────────────────────┼─────────┼─────────────────┤
+│ fast-stringify             │ 73237   │ '± 0.04%'       │
+│ json-stringify-safe        │ 58863   │ '± 0.04%'       │
+│ fast-json-stable-stringify │ 56959   │ '± 0.05%'       │
+│ json-stable-stringify      │ 36927   │ '± 0.07%'       │
+│ decircularize              │ 22377   │ '± 0.08%'       │
+│ json-cycle                 │ 403     │ '± 0.16%'       │
+└────────────────────────────┴─────────┴─────────────────┘
+Fastest was "fast-stringify".
+```
 
 ## Development
 

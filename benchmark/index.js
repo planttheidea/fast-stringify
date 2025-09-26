@@ -1,8 +1,9 @@
 "use strict";
 
 const assertDeepStrictEqual = require("assert").deepStrictEqual;
-const Benchmark = require("benchmark");
 const React = require("react");
+const { Bench } = require("tinybench");
+const sortBy = require("lodash/sortBy");
 
 function Foo(value) {
   this.value = value;
@@ -25,7 +26,7 @@ const shallowObject = {
 
 const deepObject = Object.assign({}, shallowObject, {
   array: ["foo", { bar: "baz" }],
-  buffer: new Buffer("this is a test buffer"),
+  buffer: Buffer.from("this is a test buffer"),
   error: new Error("boom"),
   foo: new Foo("value"),
   map: new Map().set("foo", { bar: "baz" }),
@@ -90,161 +91,104 @@ const packages = {
   "json-stringify-safe": require("json-stringify-safe"),
 };
 
-console.log("");
+const benchmarks = {};
 
-const runShallowSuite = () => {
-  console.log("Running shallow object performance comparison...");
-  console.log("");
-
-  const suite = new Benchmark.Suite();
-
-  for (let name in packages) {
-    suite.add(name, () => packages[name](shallowObject));
+function addToBenchmarks(name, description, runners) {
+  if (benchmarks[name]) {
+    throw new ReferenceError(`Benchmark for "${name}" already exists!`);
   }
 
-  return new Promise((resolve) => {
-    suite
-      .on("cycle", (event) => {
-        const result = event.target.toString();
-
-        return console.log(result);
-      })
-      .on("complete", function () {
-        console.log("");
-        console.log(
-          `...complete, the fastest is ${this.filter("fastest").map("name")}.`
-        );
-
-        resolve();
-      })
-      .run({ async: true });
+  const { benchmark } = (benchmarks[name] = {
+    description,
+    benchmark: new Bench({ iterations: 1000 }),
   });
-};
 
-const runDeepSuite = () => {
-  console.log("Running deep object performance comparison...");
-  console.log("");
-
-  const suite = new Benchmark.Suite();
-
-  for (let name in packages) {
-    suite.add(name, () => packages[name](deepObject));
+  for (const packageName in runners) {
+    benchmark[packageName] = benchmark.add(packageName, runners[packageName]);
   }
+}
 
-  return new Promise((resolve) => {
-    suite
-      .on("cycle", (event) => {
-        const result = event.target.toString();
+function defaultRunner(object, fn) {
+  return () => fn(object);
+}
 
-        return console.log(result);
-      })
-      .on("complete", function () {
-        console.log("");
-        console.log(
-          `...complete, the fastest is ${this.filter("fastest").map("name")}.`
-        );
+function getBenchmarkRunners({
+  ignoredPackages = [],
+  object,
+  runner = defaultRunner,
+}) {
+  return Object.entries(packages).reduce((runners, [packageName, fn]) => {
+    if (!ignoredPackages.includes(packageName)) {
+      runners[packageName] = runner(object, fn);
+    }
 
-        resolve();
-      })
-      .run({ async: true });
-  });
-};
+    return runners;
+  }, {});
+}
 
-const runCircularSuite = () => {
-  console.log("Running circular object performance comparison...");
+async function runSuite(name, { benchmark, description }) {
   console.log("");
+  console.log(`${name} (${description}):`);
 
-  const suite = new Benchmark.Suite();
+  await benchmark.run();
 
-  for (let name in packages) {
-    suite.add(name, () => packages[name](circularObject));
+  const sortedTasks = sortBy(benchmark.tasks, ({ result }) => result.mean);
+  const taskResults = sortedTasks.reduce((results, { name, result }, index) => {
+    if (result.error) {
+      console.warn(
+        "\x1b[33m%s\x1b[0m",
+        `FAILED: ${name} ("${result.error.message}")`
+      );
+
+      return results;
+    }
+
+    results[name] = {
+      "Ops/sec": Math.floor(+result.hz),
+      "Margin of error": `\xb1 ${result.throughput.rme.toFixed(2)}%`,
+    };
+
+    return results;
+  }, {});
+
+  console.table(taskResults);
+  console.log(`Fastest was "${sortedTasks[0].name}".`);
+}
+
+async function runSuites() {
+  for (const name in benchmarks) {
+    await runSuite(name, benchmarks[name]);
   }
+}
 
-  return new Promise((resolve) => {
-    suite
-      .on("cycle", (event) => {
-        const result = event.target.toString();
-
-        return console.log(result);
-      })
-      .on("complete", function () {
-        console.log("");
-        console.log(
-          `...complete, the fastest is ${this.filter("fastest").map("name")}.`
-        );
-
-        resolve();
-      })
-      .run({ async: true });
-  });
-};
-
-const runSpecialSuite = () => {
-  console.log("Running special values object performance comparison...");
-  console.log("");
-
-  const suite = new Benchmark.Suite();
-
-  for (let name in packages) {
-    suite.add(name, () => packages[name](specialObject));
-  }
-
-  return new Promise((resolve) => {
-    suite
-      .on("cycle", (event) => {
-        const result = event.target.toString();
-
-        return console.log(result);
-      })
-      .on("complete", function () {
-        console.log("");
-        console.log(
-          `...complete, the fastest is ${this.filter("fastest").map("name")}.`
-        );
-
-        resolve();
-      })
-      .run({ async: true });
-  });
-};
-
-const runStableSuite = () => {
-  console.log("Running stable output comparison...");
-  console.log("");
-
-  const suite = new Benchmark.Suite();
-
-  suite.add("json-fast-stable-stringify", () =>
-    packages["fast-json-stable-stringify"](stableObject)
+[
+  {
+    description: "small number of properties where all values are primitives",
+    name: "Simple objects",
+    object: shallowObject,
+  },
+  {
+    description:
+      "large number of properties where values are a combination of primitives and complex objects",
+    name: "Complex objects",
+    object: deepObject,
+  },
+  {
+    description: "objects that deeply reference themselves",
+    name: "Circular objects",
+    object: circularObject,
+  },
+  {
+    description: "custom constructors, react components, etc.",
+    name: "Objects with special values",
+    object: specialObject,
+  },
+].forEach(({ description, ignoredPackages, name, object, runner }) => {
+  addToBenchmarks(
+    name,
+    description,
+    getBenchmarkRunners({ ignoredPackages, object, runner })
   );
-  suite.add("fast-stringify", () =>
-    packages["fast-json-stable-stringify"](stableObject, { stable: true })
-  );
-  suite.add("json-stable-stringify", () =>
-    packages["json-stable-stringify"](stableObject)
-  );
+});
 
-  return new Promise((resolve) => {
-    suite
-      .on("cycle", (event) => {
-        const result = event.target.toString();
-
-        return console.log(result);
-      })
-      .on("complete", function () {
-        console.log("");
-        console.log(
-          `...complete, the fastest is ${this.filter("fastest").map("name")}.`
-        );
-
-        resolve();
-      })
-      .run({ async: true });
-  });
-};
-
-runShallowSuite()
-  .then(runDeepSuite)
-  .then(runCircularSuite)
-  .then(runSpecialSuite)
-  .then(runStableSuite);
+runSuites();
