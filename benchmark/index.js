@@ -49,6 +49,27 @@ const circularObject = Object.assign({}, deepObject, {
   },
 });
 
+circularObject.deeply.nested.reference = circularObject;
+
+const stableCircularObject = {
+  c: 8,
+  b: [{ z: 7, y: 6, x: 4, v: 2, "!v": 3 }, 7],
+  deeply: {
+    nested: {
+      reference: {},
+    },
+  },
+  a: 3,
+};
+
+stableCircularObject.deeply.nested.reference = stableCircularObject;
+
+const stableObject = {
+  c: 8,
+  b: [{ z: 7, y: 6, x: 4, v: 2, "!v": 3 }, 7],
+  a: 3,
+};
+
 const specialObject = Object.assign({}, deepObject, {
   react: React.createElement("main", {
     children: [
@@ -74,8 +95,6 @@ const specialObject = Object.assign({}, deepObject, {
   }),
 });
 
-circularObject.deeply.nested.reference = circularObject;
-
 const packages = {
   decircularize: (value) => JSON.stringify(require("decircularize")(value)),
   "fast-json-stable-stringify": require("fast-json-stable-stringify"),
@@ -83,6 +102,7 @@ const packages = {
   "json-cycle": (value) => JSON.stringify(require("json-cycle").decycle(value)),
   "json-stable-stringify": require("json-stable-stringify"),
   "json-stringify-safe": require("json-stringify-safe"),
+  superjson: require("superjson").SuperJSON.stringify,
 };
 
 const benchmarks = {};
@@ -102,7 +122,7 @@ function addToBenchmarks(name, description, runners) {
   }
 }
 
-function defaultRunner(object, fn) {
+function defaultRunner(_name, object, fn) {
   return () => fn(object);
 }
 
@@ -113,7 +133,7 @@ function getBenchmarkRunners({
 }) {
   return Object.entries(packages).reduce((runners, [packageName, fn]) => {
     if (!ignoredPackages.includes(packageName)) {
-      runners[packageName] = runner(object, fn);
+      runners[packageName] = runner(packageName, object, fn);
     }
 
     return runners;
@@ -171,11 +191,64 @@ async function runSuites() {
     description: "objects that deeply reference themselves",
     name: "Circular objects",
     object: circularObject,
+    runner: (name, object, fn) => {
+      if (
+        name === "fast-json-stable-stringify" ||
+        name === "json-stable-stringify"
+      ) {
+        return () => fn(object, { cycles: true });
+      }
+
+      return () => fn(object);
+    },
   },
   {
     description: "custom constructors, react components, etc.",
     name: "Objects with special values",
     object: specialObject,
+  },
+  {
+    description: "objects ensuring stability of keys",
+    ignoredPackages: [
+      "decircularize",
+      "json-cycle",
+      "json-stringify-safe",
+      "superjson",
+    ],
+    name: "Stable objects",
+    object: stableObject,
+    runner: (name, object, fn) => {
+      if (name === "fast-stringify") {
+        return () => fn(object, { stable: true });
+      }
+
+      return () => fn(object);
+    },
+  },
+  {
+    description: "circular objects ensuring stability of keys",
+    ignoredPackages: [
+      "decircularize",
+      "json-cycle",
+      "json-stringify-safe",
+      "superjson",
+    ],
+    name: "Stable circular objects",
+    object: stableCircularObject,
+    runner: (name, object, fn) => {
+      if (
+        name === "fast-json-stable-stringify" ||
+        name === "json-stable-stringify"
+      ) {
+        return () => fn(object, { cycles: true });
+      }
+
+      if (name === "fast-stringify") {
+        return () => fn(object, { stable: true });
+      }
+
+      return () => fn(object);
+    },
   },
 ].forEach(({ description, ignoredPackages, name, object, runner }) => {
   addToBenchmarks(

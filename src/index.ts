@@ -1,107 +1,158 @@
-/**
- * get the reference key for the circular value
- *
- * @param keys the keys to build the reference key from
- * @param cutoff the maximum number of keys to include
- * @returns the reference key
- */
-function getReferenceKey(keys: string[], cutoff: number) {
-  return keys.slice(0, cutoff).join(".") || ".";
+interface StabilizerItem {
+  key: string;
+  value: any;
 }
 
-/**
- * faster `Array.prototype.indexOf` implementation build for slicing / splicing
- *
- * @param array the array to match the value in
- * @param value the value to match
- * @returns the matching index, or -1
- */
-function getCutoff(array: any[], value: any) {
-  const { length } = array;
-
-  for (let index = 0; index < length; ++index) {
-    if (array[index] === value) {
-      return index + 1;
-    }
-  }
-
-  return 0;
+interface StabilizerOptions {
+  /**
+   * Get the value for a given key.
+   */
+  get: (key: string) => any;
 }
 
-type StandardReplacer = (key: string, value: any) => any;
-type CircularReplacer = (key: string, value: any, referenceKey: string) => any;
-
-/**
- * create a replacer method that handles circular values
- *
- * @param [replacer] a custom replacer to use for non-circular values
- * @param [circularReplacer] a custom replacer to use for circular methods
- * @returns the value to stringify
- */
-function createReplacer(
-  replacer?: StandardReplacer,
-  circularReplacer?: CircularReplacer
-): StandardReplacer {
-  const hasReplacer = typeof replacer === "function";
-  const hasCircularReplacer = typeof circularReplacer === "function";
-
-  const cache: any[] = [];
-  const keys: any[] = [];
-
-  return function replace(this: any, key: string, value: any) {
-    if (typeof value === "object") {
-      if (cache.length) {
-        const thisCutoff = getCutoff(cache, this);
-
-        if (thisCutoff === 0) {
-          cache[cache.length] = this;
-        } else {
-          cache.splice(thisCutoff);
-          keys.splice(thisCutoff);
-        }
-
-        keys[keys.length] = key;
-
-        const valueCutoff = getCutoff(cache, value);
-
-        if (valueCutoff !== 0) {
-          return hasCircularReplacer
-            ? circularReplacer.call(
-                this,
-                key,
-                value,
-                getReferenceKey(keys, valueCutoff)
-              )
-            : `[ref=${getReferenceKey(keys, valueCutoff)}]`;
-        }
-      } else {
-        cache[0] = value;
-        keys[0] = key;
-      }
-    }
-
-    return hasReplacer ? replacer.call(this, key, value) : value;
-  };
-}
-
-/**
- * strinigifer that handles circular values
- *
- * @param the value to stringify
- * @param [replacer] a custom replacer function for handling standard values
- * @param [indent] the number of spaces to indent the output by
- * @param [circularReplacer] a custom replacer function for handling circular values
- * @returns the stringified output
- */
-export default function stringify(
+export type Stabilizer = (
+  a: StabilizerItem,
+  b: StabilizerItem,
+  options: StabilizerOptions
+) => number;
+export type Replacer = (key: string, value: any) => any;
+export type CircularReplacer = (
+  key: string,
   value: any,
-  replacer?: StandardReplacer,
-  indent?: number,
-  circularReplacer?: CircularReplacer
-) {
+  referenceKey: string
+) => any;
+
+interface BaseOptions {
+  /**
+   * Custom replacer function for circular reference values.
+   *
+   * If not provided, circular references are replaced with `[ref=##]` where `##` is a
+   * dot-separated path to the original reference (e.g. `[ref=.nested.obj]`).
+   */
+  circularReplacer?: CircularReplacer;
+  /**
+   * Number of spaces to use as white space for indenting.
+   */
+  indent?: number;
+  /**
+   * Custom replacer function for standard values.
+   */
+  replacer?: Replacer;
+  /**
+   * If true, stable key ordering is used.
+   */
+  stable?: boolean;
+  /**
+   * Custom stabilizer function for stable key ordering when the `stable` option is set to `true`.
+   *
+   * If not provided, keys are sorted in ascending order using `String.prototype.localeCompare`.
+   */
+  stabilizer?: Stabilizer;
+}
+
+interface SimpleOptions extends BaseOptions {
+  stable?: never;
+  stabilizer?: never;
+}
+
+interface UnstableOptions extends BaseOptions {
+  stable: false;
+  stabilizer?: never;
+}
+
+interface StableOptions extends BaseOptions {
+  stable: true;
+  stabilizer?: Stabilizer;
+}
+
+export type Options = SimpleOptions | StableOptions | UnstableOptions;
+
+/**
+ * Consistent reference for no options passed, to avoid garbage.
+ */
+const DEFAULT_OPTIONS: Options = {};
+
+/**
+ * Stringifier that handles circular values.
+ */
+export default function stringify<Value>(
+  value: Value,
+  {
+    indent,
+    replacer,
+    circularReplacer,
+    stable,
+    stabilizer,
+  }: Options = DEFAULT_OPTIONS
+): string {
+  const cache: any[] = [];
+  const keys: string[] = [];
+  const getStableSorter =
+    stable && stabilizer
+      ? (object: any) => {
+          const options = {
+            get: (key: string) => object[key],
+          };
+
+          return (a: string, b: string) =>
+            stabilizer(
+              { key: a, value: object[a] },
+              { key: b, value: object[b] },
+              options
+            );
+        }
+      : undefined;
+
   return JSON.stringify(
     value,
-    createReplacer(replacer, circularReplacer),
+    function replace(this: any, key: string, rawValue: any) {
+      let value = rawValue;
+
+      if (typeof value === "object" && value !== null) {
+        if (cache.length) {
+          const thisCutoff = cache.indexOf(this) + 1;
+
+          if (thisCutoff === 0) {
+            cache[cache.length] = this;
+          } else {
+            cache.splice(thisCutoff);
+            keys.splice(thisCutoff);
+          }
+
+          keys[keys.length] = key;
+
+          const valueCutoff = cache.indexOf(value) + 1;
+
+          if (valueCutoff > 0) {
+            const referenceKey = keys.slice(0, valueCutoff).join(".") || ".";
+
+            return circularReplacer
+              ? circularReplacer.call(this, key, value, referenceKey)
+              : `[ref=${referenceKey}]`;
+          }
+        } else {
+          cache[0] = value;
+          keys[0] = key;
+        }
+
+        if (stable && !Array.isArray(value)) {
+          const sortedKeys = Object.keys(value).sort(
+            getStableSorter && getStableSorter(value)
+          );
+          const sortedValue: Record<string, any> = {};
+
+          for (let index = 0; index < sortedKeys.length; ++index) {
+            const key = sortedKeys[index]!;
+
+            sortedValue[key] = value[key];
+          }
+
+          value = sortedValue;
+        }
+      }
+
+      return replacer ? replacer.call(this, key, value) : value;
+    },
     indent
   );
 }

@@ -1,25 +1,24 @@
 # fast-stringify
 
-A tiny, [blazing fast](#benchmarks) stringifier that safely handles circular objects
+A tiny, [blazing fast](#benchmarks) stringifier that safely handles circular objects.
+
+The fastest way to stringify an object will always be the native `JSON.stringify`, but it does not support circular objects out of the box. If you need to stringify objects that have circular references, `fast-stringify` is there for you! It hsa a simple API to allow for several use-cases that `JSON.stringify` does not while also maintaining blazing fast performance compared to its peers.
 
 ## Table of contents
 
 - [fast-stringify](#fast-stringify)
-  - [Table of contents](#Table-of-contents)
-  - [Summary](#Summary)
-  - [Usage](#Usage)
+  - [Table of contents](#table-of-contents)
+  - [Usage](#usage)
     - [stringify](#stringify)
-  - [Importing](#Importing)
-  - [Benchmarks](#Benchmarks)
-    - [Simple objects](#Simple-objects)
-    - [Complex objects](#Complex-objects)
-    - [Circular objects](#Circular-objects)
-    - [Special objects](#Special-objects)
-  - [Development](#Development)
-
-## Summary
-
-The fastest way to stringify an object will always be the native `JSON.stringify`, but it does not support circular objects out of the box. If you need to stringify objects that have circular references, `fast-stringify` is there for you! It maintains a very similar API to the native `JSON.stringify`, and aims to be the most performant stringifier that handles circular references.
+  - [Importing](#importing)
+  - [Benchmarks](#benchmarks)
+    - [Simple objects](#simple-objects)
+    - [Complex objects](#complex-objects)
+    - [Circular objects](#circular-objects)
+    - [Special objects](#special-objects)
+    - [Stable objects](#stable-objects)
+    - [Stable circularobjects](#stable-circular-objects)
+  - [Development](#development)
 
 ## Usage
 
@@ -41,27 +40,32 @@ console.log(stringify(object));
 // {"foo":"bar","deeply":{"recursive":{"object":"[ref=.deeply.recursive]"}}}
 ```
 
-#### stringify
+### stringify
 
 ```ts
-type StandardReplacer = (key: string, value: any) => any;
-type CircularReplacer = (key: string, value: any, referenceKey: string) => any;
+interface Options {
+  circularReplacer?: (key: string, value: any, referenceKey: string) => any;
+  indent?: number;
+  replacer?: (key: string, value: any) => any;
+  stable?: boolean;
+  stabilizer?: (
+    entryA: { key: string; value: any },
+    entryB: { key: string; value: any },
+    stabilizerOptions: { get: (key: string) => any }
+  ) => any;
+}
 
-function stringify(
-  value: any,
-  replacer?: StandardReplacer,
-  indent?: number,
-  circularReplacer: CircularReplacer
-): string;
+function stringify(value: any, options?: Options): string;
 ```
 
-Stringifies the object passed based on the parameters you pass. The only required value is the `object`. The additional parameters passed will customize how the string is compiled.
+Stringifies the object passed based on the options passed. The only required value is the `value`. The additional optons passed will customize how the string is compiled. Available options:
 
-- `value` => the value to stringify
 - `replacer` => function to customize how the non-circular value is stringified (see [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) for more details)
 - `indent` => number of spaces to indent the stringified object for pretty-printing (see [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) for more details)
 - `circularReplacer` => function to customize how the circular value is stringified (defaults to `[ref=##]` where `##` is the `referenceKey`)
   - `referenceKey` is a dot-separated key list reflecting the nested key the object was originally declared at
+- `stable` => whether to sort the keys for stability
+- `stabilizer` => function to customize how the stable object is sorted (only applies when `stable` is `true`)
 
 ## Importing
 
@@ -84,15 +88,15 @@ const stringify = require("fast-stringify");
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 1019882 │ '± 0.01%'       │
-│ fast-json-stable-stringify │ 912185  │ '± 0.02%'       │
-│ json-stringify-safe        │ 703476  │ '± 0.02%'       │
-│ json-stable-stringify      │ 672985  │ '± 0.02%'       │
-│ decircularize              │ 379974  │ '± 0.02%'       │
-│ json-cycle                 │ 6760    │ '± 0.09%'       │
+│ fast-stringify             │ 1129716 │ '± 0.01%'       │
+│ fast-json-stable-stringify │ 897600  │ '± 0.02%'       │
+│ json-stringify-safe        │ 714530  │ '± 0.02%'       │
+│ json-stable-stringify      │ 666011  │ '± 0.02%'       │
+│ decircularize              │ 374814  │ '± 0.02%'       │
+│ superjson                  │ 296722  │ '± 0.02%'       │
+│ json-cycle                 │ 6612    │ '± 0.07%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
-
 ```
 
 ### Complex objects
@@ -101,48 +105,75 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 204278  │ '± 0.02%'       │
-│ fast-json-stable-stringify │ 198841  │ '± 0.02%'       │
-│ json-stringify-safe        │ 148390  │ '± 0.02%'       │
-│ json-stable-stringify      │ 116298  │ '± 0.03%'       │
-│ decircularize              │ 63006   │ '± 0.04%'       │
-│ json-cycle                 │ 1138    │ '± 0.16%'       │
+│ fast-stringify             │ 205011  │ '± 0.02%'       │
+│ fast-json-stable-stringify │ 193249  │ '± 0.03%'       │
+│ json-stringify-safe        │ 145528  │ '± 0.03%'       │
+│ json-stable-stringify      │ 116081  │ '± 0.03%'       │
+│ decircularize              │ 60842   │ '± 0.04%'       │
+│ superjson                  │ 47221   │ '± 0.06%'       │
+│ json-cycle                 │ 1113    │ '± 0.11%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
-
 ```
 
-#### Circular objects
+### Circular objects
 
 ```bash
-FAILED: fast-json-stable-stringify ("Converting circular structure to JSON")
-FAILED: json-stable-stringify ("Converting circular structure to JSON")
-┌─────────────────────┬─────────┬─────────────────┐
-│ (index)             │ Ops/sec │ Margin of error │
-├─────────────────────┼─────────┼─────────────────┤
-│ fast-stringify      │ 162296  │ '± 0.02%'       │
-│ json-stringify-safe │ 126350  │ '± 0.02%'       │
-│ decircularize       │ 57248   │ '± 0.04%'       │
-│ json-cycle          │ 1066    │ '± 0.17%'       │
-└─────────────────────┴─────────┴─────────────────┘
-Fastest was "fast-stringify".
-```
-
-#### Special objects
-
-```bash
-Objects with special values (custom constructors, react components, etc.):
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 73237   │ '± 0.04%'       │
-│ json-stringify-safe        │ 58863   │ '± 0.04%'       │
-│ fast-json-stable-stringify │ 56959   │ '± 0.05%'       │
-│ json-stable-stringify      │ 36927   │ '± 0.07%'       │
-│ decircularize              │ 22377   │ '± 0.08%'       │
-│ json-cycle                 │ 403     │ '± 0.16%'       │
+│ fast-stringify             │ 165949  │ '± 0.03%'       │
+│ fast-json-stable-stringify │ 164775  │ '± 0.03%'       │
+│ json-stringify-safe        │ 124976  │ '± 0.03%'       │
+│ json-stable-stringify      │ 101248  │ '± 0.04%'       │
+│ decircularize              │ 54992   │ '± 0.05%'       │
+│ superjson                  │ 37815   │ '± 0.07%'       │
+│ json-cycle                 │ 1040    │ '± 0.15%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
+```
+
+### Special objects
+
+```bash
+┌────────────────────────────┬─────────┬─────────────────┐
+│ (index)                    │ Ops/sec │ Margin of error │
+├────────────────────────────┼─────────┼─────────────────┤
+│ fast-stringify             │ 81044   │ '± 0.04%'       │
+│ json-stringify-safe        │ 58829   │ '± 0.05%'       │
+│ fast-json-stable-stringify │ 55647   │ '± 0.05%'       │
+│ json-stable-stringify      │ 36610   │ '± 0.07%'       │
+│ decircularize              │ 21891   │ '± 0.09%'       │
+│ superjson                  │ 16050   │ '± 0.13%'       │
+│ json-cycle                 │ 401     │ '± 0.07%'       │
+└────────────────────────────┴─────────┴─────────────────┘
+Fastest was "fast-stringify".
+```
+
+### Stable objects
+
+```bash
+┌────────────────────────────┬─────────┬─────────────────┐
+│ (index)                    │ Ops/sec │ Margin of error │
+├────────────────────────────┼─────────┼─────────────────┤
+│ fast-json-stable-stringify │ 657770  │ '± 0.02%'       │
+│ fast-stringify             │ 554002  │ '± 0.02%'       │
+│ json-stable-stringify      │ 426408  │ '± 0.02%'       │
+└────────────────────────────┴─────────┴─────────────────┘
+Fastest was "fast-json-stable-stringify".
+```
+
+### Stable circular objects
+
+```bash
+┌────────────────────────────┬─────────┬─────────────────┐
+│ (index)                    │ Ops/sec │ Margin of error │
+├────────────────────────────┼─────────┼─────────────────┤
+│ fast-json-stable-stringify │ 487884  │ '± 0.02%'       │
+│ fast-stringify             │ 395479  │ '± 0.02%'       │
+│ json-stable-stringify      │ 317215  │ '± 0.02%'       │
+└────────────────────────────┴─────────┴─────────────────┘
+Fastest was "fast-json-stable-stringify".
 ```
 
 ## Development
@@ -159,9 +190,9 @@ Standard practice, clone the repo and `npm i` to get the dependencies. The follo
 - `dist` => run `clean`, `build`, and `copy:mjs` scripts
 - `lint` => run ESLint on all files in `src` folder (also runs on `dev` script)
 - `lint:fix` => run `lint` script, but with auto-fixer
-- `prepublishOnly` => run `lint`, `typecheck`, `test:coverage`, and `dist` scripts
 - `release` => run `release-it` for standard versions (expected to be installed globally)
 - `release:beta` => run `release-it` for beta versions (expected to be installed globally)
+- `release:scripts` => run `lint`, `typecheck`, `test:coverage`, and `dist` scripts
 - `start` => run `dev`
 - `test` => run Jest with NODE_ENV=test on all files in `__tests__` folder
 - `test:coverage` => run same script as `test` with code coverage calculation
