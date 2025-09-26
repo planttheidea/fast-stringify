@@ -128,14 +128,14 @@ function createReplacer({
   const hasCircularReplacer = typeof circularReplacer === "function";
 
   const cache: any[] = [];
-  const keys: any[] = [];
+  const keys: string[] = [];
 
   return function replace(this: any, key: string, rawValue: any) {
     let value = rawValue;
 
     if (typeof value === "object") {
       if (cache.length) {
-        const thisCutoff = getCutoff(cache, this);
+        const thisCutoff = cache.indexOf(this) + 1;
 
         if (thisCutoff === 0) {
           cache[cache.length] = this;
@@ -146,9 +146,9 @@ function createReplacer({
 
         keys[keys.length] = key;
 
-        const valueCutoff = getCutoff(cache, value);
+        const valueCutoff = cache.indexOf(value) + 1;
 
-        if (valueCutoff !== 0) {
+        if (valueCutoff > 0) {
           const referenceKey = keys.slice(0, valueCutoff).join(".") || ".";
 
           return hasCircularReplacer
@@ -167,21 +167,6 @@ function createReplacer({
 
     return hasReplacer ? replacer.call(this, key, value) : value;
   };
-}
-
-/**
- * Faster `Array.prototype.indexOf` implementation build for slicing / splicing.s
- */
-function getCutoff(array: any[], value: any) {
-  const { length } = array;
-
-  for (let index = 0; index < length; ++index) {
-    if (array[index] === value) {
-      return index + 1;
-    }
-  }
-
-  return 0;
 }
 
 /**
