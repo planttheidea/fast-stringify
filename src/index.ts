@@ -10,17 +10,21 @@ interface StabilizerOptions {
   get: (key: string) => any;
 }
 
-type Stabilizer = (
+export type Stabilizer = (
   a: StabilizerItem,
   b: StabilizerItem,
   options: StabilizerOptions
 ) => number;
-type StandardReplacer = (key: string, value: any) => any;
-type CircularReplacer = (key: string, value: any, referenceKey: string) => any;
+export type Replacer = (key: string, value: any) => any;
+export type CircularReplacer = (
+  key: string,
+  value: any,
+  referenceKey: string
+) => any;
 
-interface Options {
+interface BaseOptions {
   /**
-   * Function to derive string value to replace circular references with.
+   * Custom replacer function for circular reference values.
    *
    * If not provided, circular references are replaced with `[ref=##]` where `##` is a
    * dot-separated path to the original reference (e.g. `[ref=.nested.obj]`).
@@ -33,7 +37,7 @@ interface Options {
   /**
    * Custom replacer function for standard values.
    */
-  replacer?: StandardReplacer;
+  replacer?: Replacer;
   /**
    * If true, stable key ordering is used.
    */
@@ -45,6 +49,23 @@ interface Options {
    */
   stabilizer?: Stabilizer;
 }
+
+interface SimpleOptions extends BaseOptions {
+  stable?: never;
+  stabilizer?: never;
+}
+
+interface UnstableOptions extends BaseOptions {
+  stable: false;
+  stabilizer?: never;
+}
+
+interface StableOptions extends BaseOptions {
+  stable: true;
+  stabilizer?: Stabilizer;
+}
+
+export type Options = SimpleOptions | StableOptions | UnstableOptions;
 
 const DEFAULT_OPTIONS: Options = {};
 
@@ -102,7 +123,7 @@ function createReplacer({
   circularReplacer,
   stable,
   stabilizer,
-}: Options): StandardReplacer {
+}: Options): Replacer {
   const hasReplacer = typeof replacer === "function";
   const hasCircularReplacer = typeof circularReplacer === "function";
 
@@ -166,8 +187,8 @@ function getCutoff(array: any[], value: any) {
 /**
  * Stringifier that handles circular values.
  */
-export default function stringify(
-  value: any,
+export default function stringify<Value>(
+  value: Value,
   options: Options = DEFAULT_OPTIONS
 ): string {
   return JSON.stringify(value, createReplacer(options), options.indent);
