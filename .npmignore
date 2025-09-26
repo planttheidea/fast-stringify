@@ -3,6 +3,7 @@
 .gitignore
 .idea
 .nyc_output
+.yarn
 .yarnrc
 __tests__
 benchmark
