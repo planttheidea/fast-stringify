@@ -67,43 +67,22 @@ interface StableOptions extends BaseOptions {
 
 export type Options = SimpleOptions | StableOptions | UnstableOptions;
 
+/**
+ * Consistent reference for no options passed, to avoid garbage.
+ */
 const DEFAULT_OPTIONS: Options = {};
 
+/**
+ * Get the stable object based on the stabilizer (if passed).
+ */
 function getStableObject(object: any, stabilizer: Stabilizer | undefined) {
-  if (object == null || typeof object !== "object") {
+  if (object == null || typeof object !== "object" || Array.isArray(object)) {
     return object;
   }
 
-  const Constructor = object.constructor;
-
-  if (
-    // Created via `Object.create(null)`
-    Constructor != null &&
-    // Plain old JavaScript object
-    Constructor !== Object &&
-    // Other type of global object (Array, Date, Map, etc.)
-    globalThis[Constructor.name as keyof typeof globalThis] != null
-  ) {
-    // Only sort plain objects.s
-    return object;
-  }
-
-  let sorter: ((a: any, b: any) => number) | undefined;
-
-  if (stabilizer) {
-    const options = {
-      get: (key: string) => object[key],
-    };
-
-    sorter = (a, b) =>
-      stabilizer(
-        { key: a, value: object[a] },
-        { key: b, value: object[b] },
-        options
-      );
-  }
-
-  const sorted = Object.keys(object).sort(sorter);
+  const sorted = Object.keys(object).sort(
+    stabilizer && getStableSorter(object, stabilizer)
+  );
   const sortedObject: Record<string, any> = {};
 
   for (let index = 0; index < sorted.length; ++index) {
@@ -113,6 +92,25 @@ function getStableObject(object: any, stabilizer: Stabilizer | undefined) {
   }
 
   return sortedObject;
+}
+
+/**
+ * Get the custom sorter used to stabilize the objects.
+ */
+function getStableSorter(
+  object: any,
+  stabilizer: Stabilizer
+): (a: any, b: any) => number {
+  const options = {
+    get: (key: string) => object[key],
+  };
+
+  return (a, b) =>
+    stabilizer(
+      { key: a, value: object[a] },
+      { key: b, value: object[b] },
+      options
+    );
 }
 
 /**
