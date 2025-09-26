@@ -135,12 +135,12 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 73237   │ '± 0.04%'       │
-│ json-stringify-safe        │ 58863   │ '± 0.04%'       │
-│ fast-json-stable-stringify │ 56959   │ '± 0.05%'       │
-│ json-stable-stringify      │ 36927   │ '± 0.07%'       │
-│ decircularize              │ 22377   │ '± 0.08%'       │
-│ json-cycle                 │ 403     │ '± 0.16%'       │
+│ fast-stringify             │ 73502   │ '± 0.03%'       │
+│ json-stringify-safe        │ 59150   │ '± 0.05%'       │
+│ fast-json-stable-stringify │ 57563   │ '± 0.05%'       │
+│ json-stable-stringify      │ 36883   │ '± 0.08%'       │
+│ decircularize              │ 22638   │ '± 0.07%'       │
+│ json-cycle                 │ 409     │ '± 0.23%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
 ```
