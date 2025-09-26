@@ -73,106 +73,86 @@ export type Options = SimpleOptions | StableOptions | UnstableOptions;
 const DEFAULT_OPTIONS: Options = {};
 
 /**
- * Get the stable object based on the stabilizer (if passed).
- */
-function getStableObject(object: any, stabilizer: Stabilizer | undefined) {
-  if (object == null || typeof object !== "object" || Array.isArray(object)) {
-    return object;
-  }
-
-  const sorted = Object.keys(object).sort(
-    stabilizer && getStableSorter(object, stabilizer)
-  );
-  const sortedObject: Record<string, any> = {};
-
-  for (let index = 0; index < sorted.length; ++index) {
-    const key = sorted[index]!;
-
-    sortedObject[key] = object[key];
-  }
-
-  return sortedObject;
-}
-
-/**
- * Get the custom sorter used to stabilize the objects.
- */
-function getStableSorter(
-  object: any,
-  stabilizer: Stabilizer
-): (a: any, b: any) => number {
-  const options = {
-    get: (key: string) => object[key],
-  };
-
-  return (a, b) =>
-    stabilizer(
-      { key: a, value: object[a] },
-      { key: b, value: object[b] },
-      options
-    );
-}
-
-/**
- * Create a replacer method that handles circular values.
- */
-function createReplacer({
-  replacer,
-  circularReplacer,
-  stable,
-  stabilizer,
-}: Options): Replacer {
-  const hasReplacer = typeof replacer === "function";
-  const hasCircularReplacer = typeof circularReplacer === "function";
-
-  const cache: any[] = [];
-  const keys: string[] = [];
-
-  return function replace(this: any, key: string, rawValue: any) {
-    let value = rawValue;
-
-    if (typeof value === "object") {
-      if (cache.length) {
-        const thisCutoff = cache.indexOf(this) + 1;
-
-        if (thisCutoff === 0) {
-          cache[cache.length] = this;
-        } else {
-          cache.splice(thisCutoff);
-          keys.splice(thisCutoff);
-        }
-
-        keys[keys.length] = key;
-
-        const valueCutoff = cache.indexOf(value) + 1;
-
-        if (valueCutoff > 0) {
-          const referenceKey = keys.slice(0, valueCutoff).join(".") || ".";
-
-          return hasCircularReplacer
-            ? circularReplacer.call(this, key, value, referenceKey)
-            : `[ref=${referenceKey}]`;
-        }
-      } else {
-        cache[0] = value;
-        keys[0] = key;
-      }
-
-      if (stable) {
-        value = getStableObject(value, stabilizer);
-      }
-    }
-
-    return hasReplacer ? replacer.call(this, key, value) : value;
-  };
-}
-
-/**
  * Stringifier that handles circular values.
  */
 export default function stringify<Value>(
   value: Value,
-  options: Options = DEFAULT_OPTIONS
+  {
+    indent,
+    replacer,
+    circularReplacer,
+    stable,
+    stabilizer,
+  }: Options = DEFAULT_OPTIONS
 ): string {
-  return JSON.stringify(value, createReplacer(options), options.indent);
+  const cache: any[] = [];
+  const keys: string[] = [];
+  const getStableSorter =
+    stable && stabilizer
+      ? (object: any) => {
+          const options = {
+            get: (key: string) => object[key],
+          };
+
+          return (a: string, b: string) =>
+            stabilizer(
+              { key: a, value: object[a] },
+              { key: b, value: object[b] },
+              options
+            );
+        }
+      : undefined;
+
+  return JSON.stringify(
+    value,
+    function replace(this: any, key: string, rawValue: any) {
+      let value = rawValue;
+
+      if (typeof value === "object" && value !== null) {
+        if (cache.length) {
+          const thisCutoff = cache.indexOf(this) + 1;
+
+          if (thisCutoff === 0) {
+            cache[cache.length] = this;
+          } else {
+            cache.splice(thisCutoff);
+            keys.splice(thisCutoff);
+          }
+
+          keys[keys.length] = key;
+
+          const valueCutoff = cache.indexOf(value) + 1;
+
+          if (valueCutoff > 0) {
+            const referenceKey = keys.slice(0, valueCutoff).join(".") || ".";
+
+            return circularReplacer
+              ? circularReplacer.call(this, key, value, referenceKey)
+              : `[ref=${referenceKey}]`;
+          }
+        } else {
+          cache[0] = value;
+          keys[0] = key;
+        }
+
+        if (stable && !Array.isArray(value)) {
+          const sortedKeys = Object.keys(value).sort(
+            getStableSorter && getStableSorter(value)
+          );
+          const sortedValue: Record<string, any> = {};
+
+          for (let index = 0; index < sortedKeys.length; ++index) {
+            const key = sortedKeys[index]!;
+
+            sortedValue[key] = value[key];
+          }
+
+          value = sortedValue;
+        }
+      }
+
+      return replacer ? replacer.call(this, key, value) : value;
+    },
+    indent
+  );
 }
