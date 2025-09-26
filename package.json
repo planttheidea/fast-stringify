@@ -49,6 +49,15 @@
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.2"
   },
+  "files": [
+    "dist",
+    "src",
+    "CHANGELOG.md",
+    "index.d.ts",
+    "LICENSE",
+    "package.json",
+    "README.md"
+  ],
   "homepage": "https://github.com/planttheidea/fast-stringify#readme",
   "keywords": [
     "stringify",
