@@ -108,7 +108,7 @@ function addToBenchmarks(name, description, runners) {
   }
 }
 
-function defaultRunner(object, fn) {
+function defaultRunner(_name, object, fn) {
   return () => fn(object);
 }
 
@@ -119,7 +119,7 @@ function getBenchmarkRunners({
 }) {
   return Object.entries(packages).reduce((runners, [packageName, fn]) => {
     if (!ignoredPackages.includes(packageName)) {
-      runners[packageName] = runner(object, fn);
+      runners[packageName] = runner(packageName, object, fn);
     }
 
     return runners;
@@ -182,6 +182,19 @@ async function runSuites() {
     description: "custom constructors, react components, etc.",
     name: "Objects with special values",
     object: specialObject,
+  },
+  {
+    description: "objects ensuring stability of keys",
+    ignoredPackages: ["decircularize", "json-cycle", "json-stringify-safe"],
+    name: "Stable objects",
+    object: stableObject,
+    runner: (name, object, fn) => {
+      if (name === "fast-stringify") {
+        return () => fn(object, { stable: true });
+      }
+
+      return () => fn(object);
+    },
   },
 ].forEach(({ description, ignoredPackages, name, object, runner }) => {
   addToBenchmarks(

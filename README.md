@@ -87,15 +87,14 @@ const stringify = require("fast-stringify");
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 1019882 │ '± 0.01%'       │
-│ fast-json-stable-stringify │ 912185  │ '± 0.02%'       │
-│ json-stringify-safe        │ 703476  │ '± 0.02%'       │
-│ json-stable-stringify      │ 672985  │ '± 0.02%'       │
-│ decircularize              │ 379974  │ '± 0.02%'       │
-│ json-cycle                 │ 6760    │ '± 0.09%'       │
+│ fast-stringify             │ 1039057 │ '± 0.01%'       │
+│ fast-json-stable-stringify │ 904936  │ '± 0.02%'       │
+│ json-stringify-safe        │ 730877  │ '± 0.02%'       │
+│ json-stable-stringify      │ 679134  │ '± 0.01%'       │
+│ decircularize              │ 378041  │ '± 0.02%'       │
+│ json-cycle                 │ 6720    │ '± 0.05%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
-
 ```
 
 ### Complex objects
@@ -104,18 +103,17 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 204278  │ '± 0.02%'       │
-│ fast-json-stable-stringify │ 198841  │ '± 0.02%'       │
-│ json-stringify-safe        │ 148390  │ '± 0.02%'       │
-│ json-stable-stringify      │ 116298  │ '± 0.03%'       │
-│ decircularize              │ 63006   │ '± 0.04%'       │
-│ json-cycle                 │ 1138    │ '± 0.16%'       │
+│ fast-stringify             │ 202965  │ '± 0.02%'       │
+│ fast-json-stable-stringify │ 198331  │ '± 0.02%'       │
+│ json-stringify-safe        │ 146527  │ '± 0.02%'       │
+│ json-stable-stringify      │ 116549  │ '± 0.03%'       │
+│ decircularize              │ 62209   │ '± 0.03%'       │
+│ json-cycle                 │ 1130    │ '± 0.11%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
-
 ```
 
-### Special objects
+### Circular objects
 
 ```bash
 FAILED: fast-json-stable-stringify ("Converting circular structure to JSON")
@@ -123,18 +121,17 @@ FAILED: json-stable-stringify ("Converting circular structure to JSON")
 ┌─────────────────────┬─────────┬─────────────────┐
 │ (index)             │ Ops/sec │ Margin of error │
 ├─────────────────────┼─────────┼─────────────────┤
-│ fast-stringify      │ 162296  │ '± 0.02%'       │
-│ json-stringify-safe │ 126350  │ '± 0.02%'       │
-│ decircularize       │ 57248   │ '± 0.04%'       │
-│ json-cycle          │ 1066    │ '± 0.17%'       │
+│ fast-stringify      │ 166143  │ '± 0.02%'       │
+│ json-stringify-safe │ 127393  │ '± 0.02%'       │
+│ decircularize       │ 55939   │ '± 0.05%'       │
+│ json-cycle          │ 1048    │ '± 0.19%'       │
 └─────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
 ```
 
-#### Special objects
+### Special objects
 
 ```bash
-Objects with special values (custom constructors, react components, etc.):
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
@@ -146,6 +143,19 @@ Objects with special values (custom constructors, react components, etc.):
 │ json-cycle                 │ 403     │ '± 0.16%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
+```
+
+### Stable objects
+
+```bash
+┌────────────────────────────┬─────────┬─────────────────┐
+│ (index)                    │ Ops/sec │ Margin of error │
+├────────────────────────────┼─────────┼─────────────────┤
+│ fast-json-stable-stringify │ 687124  │ '± 0.02%'       │
+│ fast-stringify             │ 552092  │ '± 0.02%'       │
+│ json-stable-stringify      │ 426991  │ '± 0.02%'       │
+└────────────────────────────┴─────────┴─────────────────┘
+Fastest was "fast-json-stable-stringify".
 ```
 
 ## Development
