@@ -87,12 +87,15 @@ const packages = {
 
 const benchmarks = {};
 
-function addToBenchmarks(name, runners) {
+function addToBenchmarks(name, description, runners) {
   if (benchmarks[name]) {
     throw new ReferenceError(`Benchmark for "${name}" already exists!`);
   }
 
-  const benchmark = (benchmarks[name] = new Bench({ iterations: 1000 }));
+  const { benchmark } = (benchmarks[name] = {
+    description,
+    benchmark: new Bench({ iterations: 1000 }),
+  });
 
   for (const packageName in runners) {
     benchmark[packageName] = benchmark.add(packageName, runners[packageName]);
@@ -117,16 +120,19 @@ function getBenchmarkRunners({
   }, {});
 }
 
-async function runSuite(name, benchmark) {
+async function runSuite(name, { benchmark, description }) {
   console.log("");
-  console.log(`Running ${name}...`);
+  console.log(`${name} (${description}):`);
 
   await benchmark.run();
 
   const sortedTasks = sortBy(benchmark.tasks, ({ result }) => result.mean);
   const taskResults = sortedTasks.reduce((results, { name, result }, index) => {
     if (result.error) {
-      console.warn(`FAILED: ${name} ("${result.error.message}")`);
+      console.warn(
+        "\x1b[33m%s\x1b[0m",
+        `FAILED: ${name} ("${result.error.message}")`
+      );
 
       return results;
     }
@@ -150,13 +156,31 @@ async function runSuites() {
 }
 
 [
-  { name: "shallow objects", object: shallowObject },
-  { name: "deeply-nested objects", object: deepObject },
-  { name: "circular objects", object: circularObject },
-  { name: "objects with special values", object: specialObject },
-].forEach(({ ignoredPackages, name, object, runner }) => {
+  {
+    description: "small number of properties where all values are primitives",
+    name: "Simple objects",
+    object: shallowObject,
+  },
+  {
+    description:
+      "large number of properties where values are a combination of primitives and complex objects",
+    name: "Complex objects",
+    object: deepObject,
+  },
+  {
+    description: "objects that deeply reference themselves",
+    name: "Circular objects",
+    object: circularObject,
+  },
+  {
+    description: "custom constructors, react components, etc.",
+    name: "Objects with special values",
+    object: specialObject,
+  },
+].forEach(({ description, ignoredPackages, name, object, runner }) => {
   addToBenchmarks(
     name,
+    description,
     getBenchmarkRunners({ ignoredPackages, object, runner })
   );
 });
