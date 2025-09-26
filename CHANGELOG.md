@@ -1,5 +1,13 @@
 # fast-stringify CHANGELOG
 
+## 3.0.0
+
+- [#60](https://github.com/planttheidea/fast-stringify/pull/60) - Added support for stable stringification
+
+### BREAKING CHANGES
+
+- Options are now all provided via object instead of parameters
+
 ## 2.0.0
 
 - Rewritten in TypeScript
