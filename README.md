@@ -18,15 +18,14 @@ The fastest way to stringify an object will always be the native `JSON.stringify
     - [Special objects](#special-objects)
     - [Stable objects](#stable-objects)
     - [Stable circularobjects](#stable-circular-objects)
-  - [Development](#development)
 
 ## Usage
 
 ```javascript
-import stringify from "fast-stringify";
+import stringify from 'fast-stringify';
 
 const object = {
-  foo: "bar",
+  foo: 'bar',
   deeply: {
     recursive: {
       object: {},
@@ -51,7 +50,7 @@ interface Options {
   stabilizer?: (
     entryA: { key: string; value: any },
     entryB: { key: string; value: any },
-    stabilizerOptions: { get: (key: string) => any }
+    stabilizerOptions: { get: (key: string) => any },
   ) => any;
 }
 
@@ -71,13 +70,13 @@ Stringifies the object passed based on the options passed. The only required val
 
 ```javascript
 // ESM in browsers
-import stringify from "fast-stringify";
+import stringify from 'fast-stringify';
 
 // ESM in NodeJS
-import stringify from "fast-stringify/mjs";
+import stringify from 'fast-stringify/mjs';
 
 // CommonJS
-const stringify = require("fast-stringify");
+const stringify = require('fast-stringify');
 ```
 
 ## Benchmarks
@@ -88,13 +87,14 @@ const stringify = require("fast-stringify");
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 1129716 │ '± 0.01%'       │
-│ fast-json-stable-stringify │ 897600  │ '± 0.02%'       │
-│ json-stringify-safe        │ 714530  │ '± 0.02%'       │
-│ json-stable-stringify      │ 666011  │ '± 0.02%'       │
-│ decircularize              │ 374814  │ '± 0.02%'       │
-│ superjson                  │ 296722  │ '± 0.02%'       │
-│ json-cycle                 │ 6612    │ '± 0.07%'       │
+│ fast-stringify             │ 1246981 │ '± 0.01%'       │
+│ faster-stable-stringify    │ 1009331 │ '± 0.02%'       │
+│ fast-json-stable-stringify │ 918643  │ '± 0.02%'       │
+│ json-stringify-safe        │ 736089  │ '± 0.02%'       │
+│ json-stable-stringify      │ 655688  │ '± 0.02%'       │
+│ decircularize              │ 434227  │ '± 0.03%'       │
+│ superjson                  │ 260614  │ '± 0.03%'       │
+│ json-cycle                 │ 5930    │ '± 0.06%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
 ```
@@ -105,13 +105,14 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 205011  │ '± 0.02%'       │
-│ fast-json-stable-stringify │ 193249  │ '± 0.03%'       │
-│ json-stringify-safe        │ 145528  │ '± 0.03%'       │
-│ json-stable-stringify      │ 116081  │ '± 0.03%'       │
-│ decircularize              │ 60842   │ '± 0.04%'       │
-│ superjson                  │ 47221   │ '± 0.06%'       │
-│ json-cycle                 │ 1113    │ '± 0.11%'       │
+│ fast-stringify             │ 182435  │ '± 0.04%'       │
+│ fast-json-stable-stringify │ 181922  │ '± 0.03%'       │
+│ faster-stable-stringify    │ 164295  │ '± 0.03%'       │
+│ json-stringify-safe        │ 133740  │ '± 0.04%'       │
+│ json-stable-stringify      │ 110923  │ '± 0.04%'       │
+│ decircularize              │ 60097   │ '± 0.05%'       │
+│ superjson                  │ 41319   │ '± 0.06%'       │
+│ json-cycle                 │ 959     │ '± 0.06%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
 ```
@@ -122,13 +123,14 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 165949  │ '± 0.03%'       │
-│ fast-json-stable-stringify │ 164775  │ '± 0.03%'       │
-│ json-stringify-safe        │ 124976  │ '± 0.03%'       │
-│ json-stable-stringify      │ 101248  │ '± 0.04%'       │
-│ decircularize              │ 54992   │ '± 0.05%'       │
-│ superjson                  │ 37815   │ '± 0.07%'       │
-│ json-cycle                 │ 1040    │ '± 0.15%'       │
+│ fast-stringify             │ 154881  │ '± 0.04%'       │
+│ fast-json-stable-stringify │ 148094  │ '± 0.04%'       │
+│ faster-stable-stringify    │ 139589  │ '± 0.04%'       │
+│ json-stringify-safe        │ 115500  │ '± 0.05%'       │
+│ json-stable-stringify      │ 95238   │ '± 0.06%'       │
+│ decircularize              │ 54071   │ '± 0.08%'       │
+│ superjson                  │ 32388   │ '± 0.08%'       │
+│ json-cycle                 │ 883     │ '± 0.12%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
 ```
@@ -139,13 +141,14 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 81044   │ '± 0.04%'       │
-│ json-stringify-safe        │ 58829   │ '± 0.05%'       │
-│ fast-json-stable-stringify │ 55647   │ '± 0.05%'       │
-│ json-stable-stringify      │ 36610   │ '± 0.07%'       │
-│ decircularize              │ 21891   │ '± 0.09%'       │
-│ superjson                  │ 16050   │ '± 0.13%'       │
-│ json-cycle                 │ 401     │ '± 0.07%'       │
+│ fast-stringify             │ 68639   │ '± 0.06%'       │
+│ json-stringify-safe        │ 52087   │ '± 0.06%'       │
+│ fast-json-stable-stringify │ 51025   │ '± 0.06%'       │
+│ faster-stable-stringify    │ 46096   │ '± 0.07%'       │
+│ json-stable-stringify      │ 33479   │ '± 0.08%'       │
+│ decircularize              │ 20333   │ '± 0.11%'       │
+│ superjson                  │ 14914   │ '± 0.10%'       │
+│ json-cycle                 │ 341     │ '± 0.11%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
 ```
@@ -156,9 +159,10 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-json-stable-stringify │ 657770  │ '± 0.02%'       │
-│ fast-stringify             │ 554002  │ '± 0.02%'       │
-│ json-stable-stringify      │ 426408  │ '± 0.02%'       │
+│ fast-json-stable-stringify │ 673986  │ '± 0.02%'       │
+│ faster-stable-stringify    │ 645572  │ '± 0.03%'       │
+│ fast-stringify             │ 524383  │ '± 0.02%'       │
+│ json-stable-stringify      │ 398551  │ '± 0.03%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-json-stable-stringify".
 ```
@@ -169,32 +173,10 @@ Fastest was "fast-json-stable-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-json-stable-stringify │ 487884  │ '± 0.02%'       │
-│ fast-stringify             │ 395479  │ '± 0.02%'       │
-│ json-stable-stringify      │ 317215  │ '± 0.02%'       │
+│ fast-json-stable-stringify │ 479587  │ '± 0.03%'       │
+│ faster-stable-stringify    │ 477015  │ '± 0.03%'       │
+│ fast-stringify             │ 380990  │ '± 0.03%'       │
+│ json-stable-stringify      │ 288945  │ '± 0.03%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-json-stable-stringify".
 ```
-
-## Development
-
-Standard practice, clone the repo and `npm i` to get the dependencies. The following npm scripts are available:
-
-- `benchmark` => run benchmark tests against other equality libraries
-- `build` => build dist files with `rollup`
-- `clean` => run `clean:dist` and `clean:mjs` scripts
-- `clean:dist` => run `rimraf` on the `dist` folder
-- `clean:mjs` => run `rimraf` on the `mjs` folder
-- `copy:mjs` => copy and transform the ESM file generated by `dist` to be consumable as an `.mjs` file
-- `dev` => start webpack playground App
-- `dist` => run `clean`, `build`, and `copy:mjs` scripts
-- `lint` => run ESLint on all files in `src` folder (also runs on `dev` script)
-- `lint:fix` => run `lint` script, but with auto-fixer
-- `release` => run `release-it` for standard versions (expected to be installed globally)
-- `release:beta` => run `release-it` for beta versions (expected to be installed globally)
-- `release:scripts` => run `lint`, `typecheck`, `test:coverage`, and `dist` scripts
-- `start` => run `dev`
-- `test` => run Jest with NODE_ENV=test on all files in `__tests__` folder
-- `test:coverage` => run same script as `test` with code coverage calculation
-- `test:watch` => run same script as `test` but keep persistent watcher
-- `typecheck` => run TypeScript types validation

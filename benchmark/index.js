@@ -5,6 +5,7 @@ import sortBy from 'lodash/sortBy.js';
 
 import decircularize from 'decircularize';
 import fastJsonStableStringify from 'fast-json-stable-stringify';
+import fasterStableStringify from 'faster-stable-stringify';
 import { stringify as fastStringify } from '../dist/esm/index.mjs';
 import jsonCycle from 'json-cycle';
 import jsonStableStringify from 'json-stable-stringify';
@@ -103,7 +104,9 @@ const specialObject = Object.assign({}, deepObject, {
 
 const packages = {
   decircularize: (value) => JSON.stringify(decircularize(value)),
-  'fast-json-stable-stringify': fastJsonStableStringify,
+  'fast-json-stable-stringify': (value) =>
+    fastJsonStableStringify(value, { cycles: true }),
+  'faster-stable-stringify': fasterStableStringify,
   'fast-stringify': fastStringify,
   'json-cycle': (value) => JSON.stringify(jsonCycle.decycle(value)),
   'json-stable-stringify': jsonStableStringify,
