@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import * as React from 'react';
 
-import stringify from '..';
+import { stringify } from '../index.js';
 
 class Foo {
   value: string;

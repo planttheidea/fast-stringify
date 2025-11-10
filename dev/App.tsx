@@ -2,7 +2,7 @@
 import React from 'react';
 
 // src
-import stringify from '../src';
+import { stringify } from '../src/index.js';
 import safeStringify from 'json-stringify-safe';
 
 document.body.style.backgroundColor = '#1d1d1d';

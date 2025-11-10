@@ -75,7 +75,7 @@ const DEFAULT_OPTIONS: Options = {};
 /**
  * Stringifier that handles circular values.
  */
-export default function stringify<Value>(
+export function stringify<Value>(
   value: Value,
   {
     indent,

@@ -13,13 +13,13 @@ interface StabilizerOptions {
 export type Stabilizer = (
   a: StabilizerItem,
   b: StabilizerItem,
-  options: StabilizerOptions
+  options: StabilizerOptions,
 ) => number;
 export type Replacer = (key: string, value: any) => any;
 export type CircularReplacer = (
   key: string,
   value: any,
-  referenceKey: string
+  referenceKey: string,
 ) => any;
 
 interface BaseOptions {
@@ -67,7 +67,7 @@ interface StableOptions extends BaseOptions {
 
 export type Options = SimpleOptions | StableOptions | UnstableOptions;
 
-export default function stringify<Value>(
+export declare function stringify<Value>(
   value: Value,
-  options?: Options
+  options?: Options,
 ): string;
