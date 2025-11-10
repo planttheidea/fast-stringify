@@ -13,13 +13,13 @@ interface StabilizerOptions {
 export type Stabilizer = (
   a: StabilizerItem,
   b: StabilizerItem,
-  options: StabilizerOptions
+  options: StabilizerOptions,
 ) => number;
 export type Replacer = (key: string, value: any) => any;
 export type CircularReplacer = (
   key: string,
   value: any,
-  referenceKey: string
+  referenceKey: string,
 ) => any;
 
 interface BaseOptions {
@@ -83,7 +83,7 @@ export default function stringify<Value>(
     circularReplacer,
     stable,
     stabilizer,
-  }: Options = DEFAULT_OPTIONS
+  }: Options = DEFAULT_OPTIONS,
 ): string {
   const cache: any[] = [];
   const keys: string[] = [];
@@ -98,7 +98,7 @@ export default function stringify<Value>(
             stabilizer(
               { key: a, value: object[a] },
               { key: b, value: object[b] },
-              options
+              options,
             );
         }
       : undefined;
@@ -108,7 +108,7 @@ export default function stringify<Value>(
     function replace(this: any, key: string, rawValue: any) {
       let value = rawValue;
 
-      if (typeof value === "object" && value !== null) {
+      if (typeof value === 'object' && value !== null) {
         if (cache.length) {
           const thisCutoff = cache.indexOf(this) + 1;
 
@@ -124,7 +124,7 @@ export default function stringify<Value>(
           const valueCutoff = cache.indexOf(value) + 1;
 
           if (valueCutoff > 0) {
-            const referenceKey = keys.slice(0, valueCutoff).join(".") || ".";
+            const referenceKey = keys.slice(0, valueCutoff).join('.') || '.';
 
             return circularReplacer
               ? circularReplacer.call(this, key, value, referenceKey)
@@ -136,23 +136,18 @@ export default function stringify<Value>(
         }
 
         if (stable && !Array.isArray(value)) {
-          const sortedKeys = Object.keys(value).sort(
-            getStableSorter && getStableSorter(value)
-          );
-          const sortedValue: Record<string, any> = {};
+          value = Object.keys(value)
+            .sort(getStableSorter?.(value))
+            .reduce<Record<string, any>>((sorted, key) => {
+              sorted[key] = value[key];
 
-          for (let index = 0; index < sortedKeys.length; ++index) {
-            const key = sortedKeys[index]!;
-
-            sortedValue[key] = value[key];
-          }
-
-          value = sortedValue;
+              return sorted;
+            }, {});
         }
       }
 
       return replacer ? replacer.call(this, key, value) : value;
     },
-    indent
+    indent,
   );
 }

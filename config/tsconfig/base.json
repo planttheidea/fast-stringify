@@ -2,12 +2,12 @@
   "compilerOptions": {
     "allowJs": true,
     "allowUnreachableCode": false,
-    "baseUrl": "./src",
+    "baseUrl": "../../src",
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "lib": ["DOM", "ESNext"],
-    "module": "ESNext",
-    "moduleResolution": "Node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
@@ -15,7 +15,7 @@
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "outDir": "./dist",
+    "outDir": "../../dist",
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
@@ -24,8 +24,8 @@
     "strictNullChecks": true,
     "inlineSources": true,
     "target": "es5",
-    "types": ["jest", "node", "react"]
+    "types": ["node", "react"]
   },
-  "exclude": ["./node_modules"],
-  "include": ["./src/*", "src/__tests__/*", "dev/*"]
+  "exclude": ["../../node_modules"],
+  "include": ["../../src/**/*", "../../__tests__/**/*", "../../dev/**/*"]
 }
