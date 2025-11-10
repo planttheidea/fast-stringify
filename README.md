@@ -22,7 +22,7 @@ The fastest way to stringify an object will always be the native `JSON.stringify
 ## Usage
 
 ```javascript
-import stringify from 'fast-stringify';
+import { stringify } from 'fast-stringify';
 
 const object = {
   foo: 'bar',
@@ -69,14 +69,11 @@ Stringifies the object passed based on the options passed. The only required val
 ## Importing
 
 ```javascript
-// ESM in browsers
-import stringify from 'fast-stringify';
-
-// ESM in NodeJS
-import stringify from 'fast-stringify/mjs';
+// ESM
+import { stringify } from 'fast-stringify';
 
 // CommonJS
-const stringify = require('fast-stringify');
+const { stringify } = require('fast-stringify');
 ```
 
 ## Benchmarks
