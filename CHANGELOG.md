@@ -1,5 +1,11 @@
 # fast-stringify CHANGELOG
 
+## 4.0.0
+
+### BREAKING CHANGES
+
+- `stringify` is now a named import
+
 ## 3.0.0
 
 - [#60](https://github.com/planttheidea/fast-stringify/pull/60) - Added support for stable stringification

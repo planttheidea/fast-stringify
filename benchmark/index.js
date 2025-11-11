@@ -1,9 +1,16 @@
-"use strict";
+// import { deepStrictEqual as assertDeepStrictEqual } from 'assert';
+import React from 'react';
+import { Bench } from 'tinybench';
+import sortBy from 'lodash/sortBy.js';
 
-const assertDeepStrictEqual = require("assert").deepStrictEqual;
-const React = require("react");
-const { Bench } = require("tinybench");
-const sortBy = require("lodash/sortBy");
+import decircularize from 'decircularize';
+import fastJsonStableStringify from 'fast-json-stable-stringify';
+import fasterStableStringify from 'faster-stable-stringify';
+import { stringify as fastStringify } from '../dist/esm/index.mjs';
+import jsonCycle from 'json-cycle';
+import jsonStableStringify from 'json-stable-stringify';
+import jsonStringifySafe from 'json-stringify-safe';
+import { SuperJSON } from 'superjson';
 
 function Foo(value) {
   this.value = value;
@@ -14,29 +21,29 @@ function Foo(value) {
 const shallowObject = {
   boolean: true,
   fn() {
-    return "foo";
+    return 'foo';
   },
   nan: NaN,
   nil: null,
   number: 123,
-  string: "foo",
+  string: 'foo',
   undef: undefined,
-  [Symbol("key")]: "value",
+  [Symbol('key')]: 'value',
 };
 
 const deepObject = Object.assign({}, shallowObject, {
-  array: ["foo", { bar: "baz" }],
-  buffer: Buffer.from("this is a test buffer"),
-  error: new Error("boom"),
-  foo: new Foo("value"),
-  map: new Map().set("foo", { bar: "baz" }),
-  object: { foo: { bar: "baz" } },
-  promise: Promise.resolve("foo"),
+  array: ['foo', { bar: 'baz' }],
+  buffer: Buffer.from('this is a test buffer'),
+  error: new Error('boom'),
+  foo: new Foo('value'),
+  map: new Map().set('foo', { bar: 'baz' }),
+  object: { foo: { bar: 'baz' } },
+  promise: Promise.resolve('foo'),
   regexp: /foo/,
-  set: new Set().add("foo").add({ bar: "baz" }),
+  set: new Set().add('foo').add({ bar: 'baz' }),
   weakmap: new WeakMap([
-    [{}, "foo"],
-    [{}, "bar"],
+    [{}, 'foo'],
+    [{}, 'bar'],
   ]),
   weakset: new WeakSet([{}, {}]),
 });
@@ -53,7 +60,7 @@ circularObject.deeply.nested.reference = circularObject;
 
 const stableCircularObject = {
   c: 8,
-  b: [{ z: 7, y: 6, x: 4, v: 2, "!v": 3 }, 7],
+  b: [{ z: 7, y: 6, x: 4, v: 2, '!v': 3 }, 7],
   deeply: {
     nested: {
       reference: {},
@@ -66,43 +73,45 @@ stableCircularObject.deeply.nested.reference = stableCircularObject;
 
 const stableObject = {
   c: 8,
-  b: [{ z: 7, y: 6, x: 4, v: 2, "!v": 3 }, 7],
+  b: [{ z: 7, y: 6, x: 4, v: 2, '!v': 3 }, 7],
   a: 3,
 };
 
 const specialObject = Object.assign({}, deepObject, {
-  react: React.createElement("main", {
+  react: React.createElement('main', {
     children: [
-      React.createElement("h1", { children: "Title" }),
-      React.createElement("p", { children: "Content" }),
-      React.createElement("p", { children: "Content" }),
-      React.createElement("p", { children: "Content" }),
-      React.createElement("p", { children: "Content" }),
-      React.createElement("div", {
+      React.createElement('h1', { children: 'Title' }),
+      React.createElement('p', { children: 'Content' }),
+      React.createElement('p', { children: 'Content' }),
+      React.createElement('p', { children: 'Content' }),
+      React.createElement('p', { children: 'Content' }),
+      React.createElement('div', {
         children: [
-          React.createElement("div", {
-            children: "Item",
-            style: { flex: "1 1 auto" },
+          React.createElement('div', {
+            children: 'Item',
+            style: { flex: '1 1 auto' },
           }),
-          React.createElement("div", {
-            children: "Item",
-            style: { flex: "1 1 0" },
+          React.createElement('div', {
+            children: 'Item',
+            style: { flex: '1 1 0' },
           }),
         ],
-        style: { display: "flex" },
+        style: { display: 'flex' },
       }),
     ],
   }),
 });
 
 const packages = {
-  decircularize: (value) => JSON.stringify(require("decircularize")(value)),
-  "fast-json-stable-stringify": require("fast-json-stable-stringify"),
-  "fast-stringify": require("../dist/index.cjs"),
-  "json-cycle": (value) => JSON.stringify(require("json-cycle").decycle(value)),
-  "json-stable-stringify": require("json-stable-stringify"),
-  "json-stringify-safe": require("json-stringify-safe"),
-  superjson: require("superjson").SuperJSON.stringify,
+  decircularize: (value) => JSON.stringify(decircularize(value)),
+  'fast-json-stable-stringify': (value) =>
+    fastJsonStableStringify(value, { cycles: true }),
+  'faster-stable-stringify': fasterStableStringify,
+  'fast-stringify': fastStringify,
+  'json-cycle': (value) => JSON.stringify(jsonCycle.decycle(value)),
+  'json-stable-stringify': jsonStableStringify,
+  'json-stringify-safe': jsonStringifySafe,
+  superjson: SuperJSON.stringify,
 };
 
 const benchmarks = {};
@@ -141,7 +150,7 @@ function getBenchmarkRunners({
 }
 
 async function runSuite(name, { benchmark, description }) {
-  console.log("");
+  console.log('');
   console.log(`${name} (${description}):`);
 
   await benchmark.run();
@@ -150,16 +159,16 @@ async function runSuite(name, { benchmark, description }) {
   const taskResults = sortedTasks.reduce((results, { name, result }, index) => {
     if (result.error) {
       console.warn(
-        "\x1b[33m%s\x1b[0m",
-        `FAILED: ${name} ("${result.error.message}")`
+        '\x1b[33m%s\x1b[0m',
+        `FAILED: ${name} ("${result.error.message}")`,
       );
 
       return results;
     }
 
     results[name] = {
-      "Ops/sec": Math.floor(+result.hz),
-      "Margin of error": `\xb1 ${result.throughput.rme.toFixed(2)}%`,
+      'Ops/sec': Math.floor(+result.hz),
+      'Margin of error': `\xb1 ${result.throughput.rme.toFixed(2)}%`,
     };
 
     return results;
@@ -177,24 +186,24 @@ async function runSuites() {
 
 [
   {
-    description: "small number of properties where all values are primitives",
-    name: "Simple objects",
+    description: 'small number of properties where all values are primitives',
+    name: 'Simple objects',
     object: shallowObject,
   },
   {
     description:
-      "large number of properties where values are a combination of primitives and complex objects",
-    name: "Complex objects",
+      'large number of properties where values are a combination of primitives and complex objects',
+    name: 'Complex objects',
     object: deepObject,
   },
   {
-    description: "objects that deeply reference themselves",
-    name: "Circular objects",
+    description: 'objects that deeply reference themselves',
+    name: 'Circular objects',
     object: circularObject,
     runner: (name, object, fn) => {
       if (
-        name === "fast-json-stable-stringify" ||
-        name === "json-stable-stringify"
+        name === 'fast-json-stable-stringify' ||
+        name === 'json-stable-stringify'
       ) {
         return () => fn(object, { cycles: true });
       }
@@ -203,22 +212,22 @@ async function runSuites() {
     },
   },
   {
-    description: "custom constructors, react components, etc.",
-    name: "Objects with special values",
+    description: 'custom constructors, react components, etc.',
+    name: 'Objects with special values',
     object: specialObject,
   },
   {
-    description: "objects ensuring stability of keys",
+    description: 'objects ensuring stability of keys',
     ignoredPackages: [
-      "decircularize",
-      "json-cycle",
-      "json-stringify-safe",
-      "superjson",
+      'decircularize',
+      'json-cycle',
+      'json-stringify-safe',
+      'superjson',
     ],
-    name: "Stable objects",
+    name: 'Stable objects',
     object: stableObject,
     runner: (name, object, fn) => {
-      if (name === "fast-stringify") {
+      if (name === 'fast-stringify') {
         return () => fn(object, { stable: true });
       }
 
@@ -226,24 +235,24 @@ async function runSuites() {
     },
   },
   {
-    description: "circular objects ensuring stability of keys",
+    description: 'circular objects ensuring stability of keys',
     ignoredPackages: [
-      "decircularize",
-      "json-cycle",
-      "json-stringify-safe",
-      "superjson",
+      'decircularize',
+      'json-cycle',
+      'json-stringify-safe',
+      'superjson',
     ],
-    name: "Stable circular objects",
+    name: 'Stable circular objects',
     object: stableCircularObject,
     runner: (name, object, fn) => {
       if (
-        name === "fast-json-stable-stringify" ||
-        name === "json-stable-stringify"
+        name === 'fast-json-stable-stringify' ||
+        name === 'json-stable-stringify'
       ) {
         return () => fn(object, { cycles: true });
       }
 
-      if (name === "fast-stringify") {
+      if (name === 'fast-stringify') {
         return () => fn(object, { stable: true });
       }
 
@@ -254,7 +263,7 @@ async function runSuites() {
   addToBenchmarks(
     name,
     description,
-    getBenchmarkRunners({ ignoredPackages, object, runner })
+    getBenchmarkRunners({ ignoredPackages, object, runner }),
   );
 });
 
