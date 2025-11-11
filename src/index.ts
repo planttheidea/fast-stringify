@@ -128,7 +128,7 @@ export function stringify<Value>(
 
             return circularReplacer
               ? circularReplacer.call(this, key, value, referenceKey)
-              : '[ref=' + referenceKey;
+              : '[ref=' + referenceKey + ']';
           }
         } else {
           cache[0] = value;
