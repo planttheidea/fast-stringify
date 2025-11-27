@@ -10,17 +10,9 @@ interface StabilizerOptions {
   get: (key: string) => any;
 }
 
-export type Stabilizer = (
-  a: StabilizerItem,
-  b: StabilizerItem,
-  options: StabilizerOptions,
-) => number;
+export type Stabilizer = (a: StabilizerItem, b: StabilizerItem, options: StabilizerOptions) => number;
 export type Replacer = (key: string, value: any) => any;
-export type CircularReplacer = (
-  key: string,
-  value: any,
-  referenceKey: string,
-) => any;
+export type CircularReplacer = (key: string, value: any, referenceKey: string) => any;
 
 interface BaseOptions {
   /**
@@ -67,7 +59,4 @@ interface StableOptions extends BaseOptions {
 
 export type Options = SimpleOptions | StableOptions | UnstableOptions;
 
-export declare function stringify<Value>(
-  value: Value,
-  options?: Options,
-): string;
+export declare function stringify<Value>(value: Value, options?: Options): string;

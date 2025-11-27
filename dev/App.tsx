@@ -1,20 +1,6 @@
-// external dependencies
-import React from 'react';
-
-// src
-import { stringify } from '../src/index.js';
 import safeStringify from 'json-stringify-safe';
-
-document.body.style.backgroundColor = '#1d1d1d';
-document.body.style.color = '#d5d5d5';
-document.body.style.margin = '0px';
-document.body.style.padding = '0px';
-
-const div = document.createElement('div');
-
-div.textContent = 'Check the console for details.';
-
-document.body.appendChild(div);
+import React from 'react';
+import { stringify } from '../src/index.js';
 
 class Circular {
   deeply: any;
@@ -35,7 +21,6 @@ interface State {
   foo: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 class StatefulComponent extends React.Component<{}, State> {
   state: State = {
     foo: 'bar',
@@ -125,8 +110,7 @@ console.groupEnd();
 console.group('custom replacer');
 console.log(
   stringify(object.arrayBuffer, {
-    replacer: (_key, value) =>
-      String.fromCharCode.apply(null, Array.from(new Uint16Array(value))),
+    replacer: (_key, value) => String.fromCharCode.apply(null, Array.from(new Uint16Array(value))),
   }),
 );
 console.groupEnd();

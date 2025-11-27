@@ -104,8 +104,7 @@ const specialObject = Object.assign({}, deepObject, {
 
 const packages = {
   decircularize: (value) => JSON.stringify(decircularize(value)),
-  'fast-json-stable-stringify': (value) =>
-    fastJsonStableStringify(value, { cycles: true }),
+  'fast-json-stable-stringify': (value) => fastJsonStableStringify(value, { cycles: true }),
   'faster-stable-stringify': fasterStableStringify,
   'fast-stringify': fastStringify,
   'json-cycle': (value) => JSON.stringify(jsonCycle.decycle(value)),
@@ -135,11 +134,7 @@ function defaultRunner(_name, object, fn) {
   return () => fn(object);
 }
 
-function getBenchmarkRunners({
-  ignoredPackages = [],
-  object,
-  runner = defaultRunner,
-}) {
+function getBenchmarkRunners({ ignoredPackages = [], object, runner = defaultRunner }) {
   return Object.entries(packages).reduce((runners, [packageName, fn]) => {
     if (!ignoredPackages.includes(packageName)) {
       runners[packageName] = runner(packageName, object, fn);
@@ -158,10 +153,7 @@ async function runSuite(name, { benchmark, description }) {
   const sortedTasks = sortBy(benchmark.tasks, ({ result }) => result.mean);
   const taskResults = sortedTasks.reduce((results, { name, result }, index) => {
     if (result.error) {
-      console.warn(
-        '\x1b[33m%s\x1b[0m',
-        `FAILED: ${name} ("${result.error.message}")`,
-      );
+      console.warn('\x1b[33m%s\x1b[0m', `FAILED: ${name} ("${result.error.message}")`);
 
       return results;
     }
@@ -191,8 +183,7 @@ async function runSuites() {
     object: shallowObject,
   },
   {
-    description:
-      'large number of properties where values are a combination of primitives and complex objects',
+    description: 'large number of properties where values are a combination of primitives and complex objects',
     name: 'Complex objects',
     object: deepObject,
   },
@@ -201,10 +192,7 @@ async function runSuites() {
     name: 'Circular objects',
     object: circularObject,
     runner: (name, object, fn) => {
-      if (
-        name === 'fast-json-stable-stringify' ||
-        name === 'json-stable-stringify'
-      ) {
+      if (name === 'fast-json-stable-stringify' || name === 'json-stable-stringify') {
         return () => fn(object, { cycles: true });
       }
 
@@ -218,12 +206,7 @@ async function runSuites() {
   },
   {
     description: 'objects ensuring stability of keys',
-    ignoredPackages: [
-      'decircularize',
-      'json-cycle',
-      'json-stringify-safe',
-      'superjson',
-    ],
+    ignoredPackages: ['decircularize', 'json-cycle', 'json-stringify-safe', 'superjson'],
     name: 'Stable objects',
     object: stableObject,
     runner: (name, object, fn) => {
@@ -236,19 +219,11 @@ async function runSuites() {
   },
   {
     description: 'circular objects ensuring stability of keys',
-    ignoredPackages: [
-      'decircularize',
-      'json-cycle',
-      'json-stringify-safe',
-      'superjson',
-    ],
+    ignoredPackages: ['decircularize', 'json-cycle', 'json-stringify-safe', 'superjson'],
     name: 'Stable circular objects',
     object: stableCircularObject,
     runner: (name, object, fn) => {
-      if (
-        name === 'fast-json-stable-stringify' ||
-        name === 'json-stable-stringify'
-      ) {
+      if (name === 'fast-json-stable-stringify' || name === 'json-stable-stringify') {
         return () => fn(object, { cycles: true });
       }
 
@@ -260,11 +235,7 @@ async function runSuites() {
     },
   },
 ].forEach(({ description, ignoredPackages, name, object, runner }) => {
-  addToBenchmarks(
-    name,
-    description,
-    getBenchmarkRunners({ ignoredPackages, object, runner }),
-  );
+  addToBenchmarks(name, description, getBenchmarkRunners({ ignoredPackages, object, runner }));
 });
 
 runSuites();

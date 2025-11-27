@@ -10,17 +10,9 @@ interface StabilizerOptions {
   get: (key: string) => any;
 }
 
-export type Stabilizer = (
-  a: StabilizerItem,
-  b: StabilizerItem,
-  options: StabilizerOptions,
-) => number;
+export type Stabilizer = (a: StabilizerItem, b: StabilizerItem, options: StabilizerOptions) => number;
 export type Replacer = (key: string, value: any) => any;
-export type CircularReplacer = (
-  key: string,
-  value: any,
-  referenceKey: string,
-) => any;
+export type CircularReplacer = (key: string, value: any, referenceKey: string) => any;
 
 interface BaseOptions {
   /**
@@ -77,13 +69,7 @@ const DEFAULT_OPTIONS: Options = {};
  */
 export function stringify<Value>(
   value: Value,
-  {
-    indent,
-    replacer,
-    circularReplacer,
-    stable,
-    stabilizer,
-  }: Options = DEFAULT_OPTIONS,
+  { indent, replacer, circularReplacer, stable, stabilizer }: Options = DEFAULT_OPTIONS,
 ): string {
   const cache: any[] = [];
   const keys: string[] = [];
@@ -95,11 +81,7 @@ export function stringify<Value>(
           };
 
           return (a: string, b: string) =>
-            stabilizer(
-              { key: a, value: object[a] },
-              { key: b, value: object[b] },
-              options,
-            );
+            stabilizer({ key: a, value: object[a] }, { key: b, value: object[b] }, options);
         }
       : undefined;
 
