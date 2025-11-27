@@ -22,11 +22,11 @@ interface State {
 }
 
 class StatefulComponent extends React.Component<{}, State> {
-  state: State = {
+  override state: State = {
     foo: 'bar',
   };
 
-  render() {
+  override render() {
     return <StatelessComponent />;
   }
 }

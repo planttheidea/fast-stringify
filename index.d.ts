@@ -2,18 +2,15 @@ interface StabilizerItem {
   key: string;
   value: any;
 }
-
 interface StabilizerOptions {
   /**
    * Get the value for a given key.
    */
   get: (key: string) => any;
 }
-
-export type Stabilizer = (a: StabilizerItem, b: StabilizerItem, options: StabilizerOptions) => number;
-export type Replacer = (key: string, value: any) => any;
-export type CircularReplacer = (key: string, value: any, referenceKey: string) => any;
-
+type Stabilizer = (a: StabilizerItem, b: StabilizerItem, options: StabilizerOptions) => number;
+type Replacer = (key: string, value: any) => any;
+type CircularReplacer = (key: string, value: any, referenceKey: string) => any;
 interface BaseOptions {
   /**
    * Custom replacer function for circular reference values.
@@ -41,22 +38,26 @@ interface BaseOptions {
    */
   stabilizer?: Stabilizer;
 }
-
 interface SimpleOptions extends BaseOptions {
   stable?: never;
   stabilizer?: never;
 }
-
 interface UnstableOptions extends BaseOptions {
   stable: false;
   stabilizer?: never;
 }
-
 interface StableOptions extends BaseOptions {
   stable: true;
   stabilizer?: Stabilizer;
 }
+type Options = SimpleOptions | StableOptions | UnstableOptions;
+/**
+ * Stringifier that handles circular values.
+ */
+declare function stringify<Value>(
+  value: Value,
+  { indent, replacer, circularReplacer, stable, stabilizer }?: Options,
+): string;
 
-export type Options = SimpleOptions | StableOptions | UnstableOptions;
-
-export declare function stringify<Value>(value: Value, options?: Options): string;
+export { stringify };
+export type { CircularReplacer, Options, Replacer, Stabilizer };

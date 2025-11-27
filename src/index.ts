@@ -67,6 +67,7 @@ const DEFAULT_OPTIONS: Options = {};
 /**
  * Stringifier that handles circular values.
  */
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function stringify<Value>(
   value: Value,
   { indent, replacer, circularReplacer, stable, stabilizer }: Options = DEFAULT_OPTIONS,
@@ -118,7 +119,7 @@ export function stringify<Value>(
         }
 
         if (stable && !Array.isArray(value)) {
-          value = Object.keys(value)
+          value = Object.keys(value as object)
             .sort(getStableSorter?.(value))
             .reduce<Record<string, any>>((sorted, key) => {
               sorted[key] = value[key];

@@ -1,7 +1,6 @@
-import { describe, expect, test } from 'vitest';
 import * as React from 'react';
-
-import { stringify } from '../index.js';
+import { describe, expect, test } from 'vitest';
+import { stringify } from '../src/index.js';
 
 class Foo {
   value: string;
@@ -50,28 +49,21 @@ const circularObject = Object.assign({}, complexObject, {
 });
 
 const specialObject = Object.assign({}, complexObject, {
-  react: React.createElement('main', {
-    children: [
-      React.createElement('h1', { children: 'Title' }),
-      React.createElement('p', { children: 'Content' }),
-      React.createElement('p', { children: 'Content' }),
-      React.createElement('p', { children: 'Content' }),
-      React.createElement('p', { children: 'Content' }),
-      React.createElement('div', {
-        children: [
-          React.createElement('div', {
-            children: 'Item',
-            style: { flex: '1 1 auto' },
-          }),
-          React.createElement('div', {
-            children: 'Item',
-            style: { flex: '1 1 0' },
-          }),
-        ],
-        style: { display: 'flex' },
-      }),
-    ],
-  }),
+  react: React.createElement(
+    'main',
+    {},
+    React.createElement('h1', {}, 'Title'),
+    React.createElement('p', {}, 'Content'),
+    React.createElement('p', {}, 'Content'),
+    React.createElement('p', {}, 'Content'),
+    React.createElement('p', {}, 'Content'),
+    React.createElement(
+      'div',
+      { style: { display: 'flex' } },
+      React.createElement('div', { style: { flex: '1 1 auto' } }, 'Item'),
+      React.createElement('div', { style: { flex: '1 1 0' } }, 'Item'),
+    ),
+  ),
 });
 
 circularObject.deeply.nested.reference = circularObject;
