@@ -1,7 +1,6 @@
-import { describe, expect, test } from 'vitest';
 import * as React from 'react';
-
-import { stringify } from '../index.js';
+import { describe, expect, test } from 'vitest';
+import { stringify } from '../src/index.js';
 
 class Foo {
   value: string;
@@ -50,28 +49,21 @@ const circularObject = Object.assign({}, complexObject, {
 });
 
 const specialObject = Object.assign({}, complexObject, {
-  react: React.createElement('main', {
-    children: [
-      React.createElement('h1', { children: 'Title' }),
-      React.createElement('p', { children: 'Content' }),
-      React.createElement('p', { children: 'Content' }),
-      React.createElement('p', { children: 'Content' }),
-      React.createElement('p', { children: 'Content' }),
-      React.createElement('div', {
-        children: [
-          React.createElement('div', {
-            children: 'Item',
-            style: { flex: '1 1 auto' },
-          }),
-          React.createElement('div', {
-            children: 'Item',
-            style: { flex: '1 1 0' },
-          }),
-        ],
-        style: { display: 'flex' },
-      }),
-    ],
-  }),
+  react: React.createElement(
+    'main',
+    {},
+    React.createElement('h1', {}, 'Title'),
+    React.createElement('p', {}, 'Content'),
+    React.createElement('p', {}, 'Content'),
+    React.createElement('p', {}, 'Content'),
+    React.createElement('p', {}, 'Content'),
+    React.createElement(
+      'div',
+      { style: { display: 'flex' } },
+      React.createElement('div', { style: { flex: '1 1 auto' } }, 'Item'),
+      React.createElement('div', { style: { flex: '1 1 0' } }, 'Item'),
+    ),
+  ),
 });
 
 circularObject.deeply.nested.reference = circularObject;
@@ -84,8 +76,7 @@ describe('handling of object types', () => {
   });
 
   test('should handle simple objects with a custom replacer', () => {
-    const replacer = (_key: string, value: any) =>
-      value && typeof value === 'object' ? value : `primitive-${value}`;
+    const replacer = (_key: string, value: any) => (value && typeof value === 'object' ? value : `primitive-${value}`);
 
     const result = stringify(simpleObject, { replacer });
 
@@ -105,8 +96,7 @@ describe('handling of object types', () => {
   });
 
   test('should handle complex objects with a custom replacer', () => {
-    const replacer = (_key: string, value: any) =>
-      value && typeof value === 'object' ? value : `primitive-${value}`;
+    const replacer = (_key: string, value: any) => (value && typeof value === 'object' ? value : `primitive-${value}`);
 
     const result = stringify(complexObject, { replacer });
 
@@ -138,8 +128,7 @@ describe('handling of object types', () => {
 
   test('should handle circular objects with a custom circular replacer', () => {
     const result = stringify(circularObject, {
-      circularReplacer: (_key: string, _value: string, referenceKey: string) =>
-        referenceKey,
+      circularReplacer: (_key: string, _value: string, referenceKey: string) => referenceKey,
     });
     const circularReplacer = (() => {
       const cache: any[] = [];
@@ -166,8 +155,7 @@ describe('handling of object types', () => {
 
   test('should handle special objects with a custom circular replacer', () => {
     const result = stringify(specialObject, {
-      circularReplacer: (_key: string, _value: string, referenceKey: string) =>
-        referenceKey,
+      circularReplacer: (_key: string, _value: string, referenceKey: string) => referenceKey,
     });
     const circularReplacer = (() => {
       const cache: any[] = [];
@@ -200,9 +188,7 @@ describe('key references', () => {
 
     object.deeply.recursive.object = object;
 
-    expect(stringify(object)).toEqual(
-      `{"foo":"bar","deeply":{"recursive":{"object":"[ref=.]"}}}`,
-    );
+    expect(stringify(object)).toEqual(`{"foo":"bar","deeply":{"recursive":{"object":"[ref=.]"}}}`);
   });
 
   test('should point to the nested object when it is referenced', () => {
@@ -217,9 +203,7 @@ describe('key references', () => {
 
     object.deeply.recursive.object = object.deeply.recursive;
 
-    expect(stringify(object)).toEqual(
-      `{"foo":"bar","deeply":{"recursive":{"object":"[ref=.deeply.recursive]"}}}`,
-    );
+    expect(stringify(object)).toEqual(`{"foo":"bar","deeply":{"recursive":{"object":"[ref=.deeply.recursive]"}}}`);
   });
 
   describe('stable keys', () => {
@@ -234,9 +218,7 @@ describe('key references', () => {
       test('simple object', () => {
         const object = { c: 6, b: [4, 5], a: 3, z: null };
 
-        expect(stringify(object, { stable: true })).toEqual(
-          '{"a":3,"b":[4,5],"c":6,"z":null}',
-        );
+        expect(stringify(object, { stable: true })).toEqual('{"a":3,"b":[4,5],"c":6,"z":null}');
       });
 
       test('object with undefined', () => {
@@ -286,9 +268,7 @@ describe('key references', () => {
           },
         });
 
-        expect(stringified).toEqual(
-          `{"c":8,"b":[{"z":6,"y":5,"x":4},7],"a":3}`,
-        );
+        expect(stringified).toEqual(`{"c":8,"b":[{"z":6,"y":5,"x":4},7],"a":3}`);
       });
 
       test('should allow comparison with get', () => {
@@ -305,9 +285,7 @@ describe('key references', () => {
           },
         });
 
-        expect(stringified).toEqual(
-          '{"c":8,"b":[{"!v":3,"x":4,"v":2,"y":6,"z":7},7],"a":3}',
-        );
+        expect(stringified).toEqual('{"c":8,"b":[{"!v":3,"x":4,"v":2,"y":6,"z":7},7],"a":3}');
       });
     });
 
@@ -315,9 +293,7 @@ describe('key references', () => {
       test('nested', () => {
         const object = { c: 8, b: [{ z: 6, y: 5, x: 4 }, 7], a: 3 };
 
-        expect(stringify(object, { stable: true })).toEqual(
-          '{"a":3,"b":[{"x":4,"y":5,"z":6},7],"c":8}',
-        );
+        expect(stringify(object, { stable: true })).toEqual('{"a":3,"b":[{"x":4,"y":5,"z":6},7],"c":8}');
       });
 
       test('cyclic', () => {
@@ -326,27 +302,21 @@ describe('key references', () => {
 
         one.two = two;
 
-        expect(stringify(one, { stable: true })).toEqual(
-          '{"a":1,"two":{"a":2,"one":"[ref=.]"}}',
-        );
+        expect(stringify(one, { stable: true })).toEqual('{"a":1,"two":{"a":2,"one":"[ref=.]"}}');
       });
 
       test('repeated non-cyclic value', () => {
         const one = { x: 1 };
         const two = { a: one, b: one };
 
-        expect(stringify(two, { stable: true })).toEqual(
-          '{"a":{"x":1},"b":{"x":1}}',
-        );
+        expect(stringify(two, { stable: true })).toEqual('{"a":{"x":1},"b":{"x":1}}');
       });
 
       test('acyclic but with reused obj-property pointers', () => {
         const x = { a: 1 };
         const y = { b: x, c: x };
 
-        expect(stringify(y, { stable: true })).toEqual(
-          '{"b":{"a":1},"c":{"a":1}}',
-        );
+        expect(stringify(y, { stable: true })).toEqual('{"b":{"a":1},"c":{"a":1}}');
       });
     });
   });

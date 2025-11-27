@@ -44,7 +44,8 @@
 
 ## 1.0.3
 
-- Abandon use of `WeakSet` for caching, instead using more consistent and flexible `Array` cache with custom modifier methods
+- Abandon use of `WeakSet` for caching, instead using more consistent and flexible `Array` cache with custom modifier
+  methods
 
 ## 1.0.2
 

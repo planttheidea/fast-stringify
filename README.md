@@ -2,7 +2,10 @@
 
 A tiny, [blazing fast](#benchmarks) stringifier that safely handles circular objects.
 
-The fastest way to stringify an object will always be the native `JSON.stringify`, but it does not support circular objects out of the box. If you need to stringify objects that have circular references, `fast-stringify` is there for you! It hsa a simple API to allow for several use-cases that `JSON.stringify` does not while also maintaining blazing fast performance compared to its peers.
+The fastest way to stringify an object will always be the native `JSON.stringify`, but it does not support circular
+objects out of the box. If you need to stringify objects that have circular references, `fast-stringify` is there for
+you! It hsa a simple API to allow for several use-cases that `JSON.stringify` does not while also maintaining blazing
+fast performance compared to its peers.
 
 ## Table of contents
 
@@ -57,11 +60,17 @@ interface Options {
 function stringify(value: any, options?: Options): string;
 ```
 
-Stringifies the object passed based on the options passed. The only required value is the `value`. The additional optons passed will customize how the string is compiled. Available options:
+Stringifies the object passed based on the options passed. The only required value is the `value`. The additional optons
+passed will customize how the string is compiled. Available options:
 
-- `replacer` => function to customize how the non-circular value is stringified (see [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) for more details)
-- `indent` => number of spaces to indent the stringified object for pretty-printing (see [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) for more details)
-- `circularReplacer` => function to customize how the circular value is stringified (defaults to `[ref=##]` where `##` is the `referenceKey`)
+- `replacer` => function to customize how the non-circular value is stringified (see
+  [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)
+  for more details)
+- `indent` => number of spaces to indent the stringified object for pretty-printing (see
+  [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)
+  for more details)
+- `circularReplacer` => function to customize how the circular value is stringified (defaults to `[ref=##]` where `##`
+  is the `referenceKey`)
   - `referenceKey` is a dot-separated key list reflecting the nested key the object was originally declared at
 - `stable` => whether to sort the keys for stability
 - `stabilizer` => function to customize how the stable object is sorted (only applies when `stable` is `true`)

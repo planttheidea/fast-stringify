@@ -10,17 +10,9 @@ interface StabilizerOptions {
   get: (key: string) => any;
 }
 
-export type Stabilizer = (
-  a: StabilizerItem,
-  b: StabilizerItem,
-  options: StabilizerOptions,
-) => number;
+export type Stabilizer = (a: StabilizerItem, b: StabilizerItem, options: StabilizerOptions) => number;
 export type Replacer = (key: string, value: any) => any;
-export type CircularReplacer = (
-  key: string,
-  value: any,
-  referenceKey: string,
-) => any;
+export type CircularReplacer = (key: string, value: any, referenceKey: string) => any;
 
 interface BaseOptions {
   /**
@@ -75,15 +67,10 @@ const DEFAULT_OPTIONS: Options = {};
 /**
  * Stringifier that handles circular values.
  */
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function stringify<Value>(
   value: Value,
-  {
-    indent,
-    replacer,
-    circularReplacer,
-    stable,
-    stabilizer,
-  }: Options = DEFAULT_OPTIONS,
+  { indent, replacer, circularReplacer, stable, stabilizer }: Options = DEFAULT_OPTIONS,
 ): string {
   const cache: any[] = [];
   const keys: string[] = [];
@@ -95,11 +82,7 @@ export function stringify<Value>(
           };
 
           return (a: string, b: string) =>
-            stabilizer(
-              { key: a, value: object[a] },
-              { key: b, value: object[b] },
-              options,
-            );
+            stabilizer({ key: a, value: object[a] }, { key: b, value: object[b] }, options);
         }
       : undefined;
 
@@ -136,7 +119,7 @@ export function stringify<Value>(
         }
 
         if (stable && !Array.isArray(value)) {
-          value = Object.keys(value)
+          value = Object.keys(value as object)
             .sort(getStableSorter?.(value))
             .reduce<Record<string, any>>((sorted, key) => {
               sorted[key] = value[key];
