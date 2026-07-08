@@ -82,7 +82,7 @@
     "url": "git+https://github.com/planttheidea/fast-stringify.git"
   },
   "scripts": {
-    "benchmark": "npm run clean:esm && npm run build:esm && node benchmark/index.js",
+    "benchmark": "npm run build && node benchmark/index.js",
     "build": "npm run clean && npm run build:dist",
     "build:dist": "NODE_ENV=production rollup -c config/rollup.config.js",
     "build:types": "pti fix-types -l dist",

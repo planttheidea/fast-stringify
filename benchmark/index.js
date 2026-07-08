@@ -1,12 +1,12 @@
 // import { deepStrictEqual as assertDeepStrictEqual } from 'assert';
 import React from 'react';
 import { Bench } from 'tinybench';
-import sortBy from 'lodash/sortBy.js';
+import orderBy from 'lodash/orderBy.js';
 
 import decircularize from 'decircularize';
 import fastJsonStableStringify from 'fast-json-stable-stringify';
 import fasterStableStringify from 'faster-stable-stringify';
-import { stringify as fastStringify } from '../dist/esm/index.mjs';
+import { stringify as fastStringify } from '../dist/es/index.mjs';
 import jsonCycle from 'json-cycle';
 import jsonStableStringify from 'json-stable-stringify';
 import jsonStringifySafe from 'json-stringify-safe';
@@ -150,7 +150,7 @@ async function runSuite(name, { benchmark, description }) {
 
   await benchmark.run();
 
-  const sortedTasks = sortBy(benchmark.tasks, ({ result }) => result.mean);
+  const sortedTasks = orderBy(benchmark.tasks, ({ result }) => result.throughput.p50, ['desc']);
   const taskResults = sortedTasks.reduce((results, { name, result }, index) => {
     if (result.error) {
       console.warn('\x1b[33m%s\x1b[0m', `FAILED: ${name} ("${result.error.message}")`);
@@ -159,7 +159,7 @@ async function runSuite(name, { benchmark, description }) {
     }
 
     results[name] = {
-      'Ops/sec': Math.floor(+result.hz),
+      'Ops/sec': Math.floor(+result.throughput.p50),
       'Margin of error': `\xb1 ${result.throughput.rme.toFixed(2)}%`,
     };
 
