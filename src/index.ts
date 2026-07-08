@@ -130,10 +130,9 @@ export function stringify<Value>(
 }
 
 function getSortComparator(stabilizer: Stabilizer) {
-  return (sortTarget: any) => {
-    const options = { get: (key: string) => sortTarget[key] };
+  return (target: any) => {
+    const options = { get: (key: string) => target[key] };
 
-    return (a: string, b: string) =>
-      stabilizer({ key: a, value: sortTarget[a] }, { key: b, value: sortTarget[b] }, options);
+    return (a: string, b: string) => stabilizer({ key: a, value: target[a] }, { key: b, value: target[b] }, options);
   };
 }
