@@ -1,5 +1,9 @@
 # fast-stringify CHANGELOG
 
+## 4.0.1
+
+- [#89](https://github.com/planttheidea/fast-stringify/pull/89) - Improve closure cost for stabilizer
+
 ## 4.0.0
 
 ### BREAKING CHANGES
