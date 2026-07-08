@@ -75,14 +75,7 @@ export function stringify<Value>(
   const cache: any[] = [];
   const keys: string[] = [];
 
-  let sortTarget: any;
-
-  const options = { get: (key: string) => sortTarget[key] };
-  const sortComparator =
-    stable && stabilizer
-      ? (a: string, b: string) =>
-          stabilizer({ key: a, value: sortTarget[a] }, { key: b, value: sortTarget[b] }, options)
-      : undefined;
+  const sortComparator = stable && stabilizer ? getSortComparator(stabilizer) : undefined;
 
   return JSON.stringify(
     value,
@@ -117,9 +110,7 @@ export function stringify<Value>(
         }
 
         if (stable && !Array.isArray(value)) {
-          sortTarget = value;
-
-          const sortedKeys = Object.keys(value as object).sort(sortComparator);
+          const sortedKeys = Object.keys(value as object).sort(sortComparator?.(value));
           const sorted: Record<string, any> = {};
 
           for (let index = 0; index < sortedKeys.length; index++) {
@@ -136,4 +127,13 @@ export function stringify<Value>(
     },
     indent,
   );
+}
+
+function getSortComparator(stabilizer: Stabilizer) {
+  return (sortTarget: any) => {
+    const options = { get: (key: string) => sortTarget[key] };
+
+    return (a: string, b: string) =>
+      stabilizer({ key: a, value: sortTarget[a] }, { key: b, value: sortTarget[b] }, options);
+  };
 }
