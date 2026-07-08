@@ -20,7 +20,7 @@
     "strictNullChecks": true,
     "target": "ES2015",
     "verbatimModuleSyntax": true,
-    "types": ["node", "react"],
+    "types": [],
     "inlineSources": true,
     "declarationDir": "../../dist/umd/types",
     "jsx": "react-jsx",
