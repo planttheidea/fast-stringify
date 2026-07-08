@@ -178,13 +178,13 @@ console.groupEnd();
 
 const shared = { bar: [] };
 
-const similar = {
+const similar: Record<string, any> = {
   foo: shared,
   bar: shared,
   baz: {
     baz: null,
     foo: null,
-  } as { baz: any; foo: any },
+  },
 };
 
 similar.baz.foo = similar.foo;
