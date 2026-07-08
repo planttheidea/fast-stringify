@@ -2,11 +2,10 @@
 import React from 'react';
 import { Bench } from 'tinybench';
 import sortBy from 'lodash/sortBy.js';
-
 import decircularize from 'decircularize';
 import fastJsonStableStringify from 'fast-json-stable-stringify';
 import fasterStableStringify from 'faster-stable-stringify';
-import { stringify as fastStringify } from '../dist/esm/index.mjs';
+import { stringify as fastStringify } from '../dist/es/index.mjs';
 import jsonCycle from 'json-cycle';
 import jsonStableStringify from 'json-stable-stringify';
 import jsonStringifySafe from 'json-stringify-safe';
