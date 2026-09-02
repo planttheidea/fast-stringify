@@ -56,7 +56,10 @@ const circularObject = Object.assign({}, deepObject, {
   },
 });
 
+// A reference back to the root, and one to a nested object. The two are handled by different
+// paths in most decycling implementations, so exercise both.
 circularObject.deeply.nested.reference = circularObject;
+circularObject.deeply.nested.self = circularObject.deeply.nested;
 
 const stableCircularObject = {
   c: 8,
@@ -70,6 +73,7 @@ const stableCircularObject = {
 };
 
 stableCircularObject.deeply.nested.reference = stableCircularObject;
+stableCircularObject.deeply.nested.self = stableCircularObject.deeply.nested;
 
 const stableObject = {
   c: 8,
@@ -188,7 +192,7 @@ async function runSuites() {
     object: deepObject,
   },
   {
-    description: 'objects that deeply reference themselves',
+    description: 'objects that reference both themselves and their nested objects',
     name: 'Circular objects',
     object: circularObject,
     runner: (name, object, fn) => {
@@ -218,7 +222,7 @@ async function runSuites() {
     },
   },
   {
-    description: 'circular objects ensuring stability of keys',
+    description: 'circular objects ensuring stability of keys, referencing both the root and nested objects',
     ignoredPackages: ['decircularize', 'json-cycle', 'json-stringify-safe', 'superjson'],
     name: 'Stable circular objects',
     object: stableCircularObject,
