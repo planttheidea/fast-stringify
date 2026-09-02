@@ -4,7 +4,7 @@ A tiny, [blazing fast](#benchmarks) stringifier that safely handles circular obj
 
 The fastest way to stringify an object will always be the native `JSON.stringify`, but it does not support circular
 objects out of the box. If you need to stringify objects that have circular references, `fast-stringify` is there for
-you! It hsa a simple API to allow for several use-cases that `JSON.stringify` does not while also maintaining blazing
+you! It has a simple API to allow for several use-cases that `JSON.stringify` does not while also maintaining blazing
 fast performance compared to its peers.
 
 ## Table of contents
@@ -47,7 +47,7 @@ console.log(stringify(object));
 ```ts
 interface Options {
   circularReplacer?: (key: string, value: any, referenceKey: string) => any;
-  indent?: number;
+  indent?: number | string;
   replacer?: (key: string, value: any) => any;
   stable?: boolean;
   stabilizer?: (
@@ -57,7 +57,8 @@ interface Options {
   ) => any;
 }
 
-function stringify(value: any, options?: Options): string;
+function stringify(value: undefined | symbol | ((...args: any[]) => any), options?: Options): undefined;
+function stringify<Value>(value: Value, options?: Options): string;
 ```
 
 Stringifies the object passed based on the options passed. The only required value is the `value`. The additional optons
@@ -66,14 +67,21 @@ passed will customize how the string is compiled. Available options:
 - `replacer` => function to customize how the non-circular value is stringified (see
   [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)
   for more details)
-- `indent` => number of spaces to indent the stringified object for pretty-printing (see
+- `indent` => white space used to indent the stringified object for pretty-printing, either as a number of spaces or as
+  the literal string to indent with (see
   [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)
   for more details)
 - `circularReplacer` => function to customize how the circular value is stringified (defaults to `[ref=##]` where `##`
   is the `referenceKey`)
   - `referenceKey` is a dot-separated key list reflecting the nested key the object was originally declared at
 - `stable` => whether to sort the keys for stability
+  - keys are sorted in ascending order by UTF-16 code unit, matching the default `Array.prototype.sort` ordering.
+    Locale-aware comparison is deliberately not used, because it would make output vary between environments.
 - `stabilizer` => function to customize how the stable object is sorted (only applies when `stable` is `true`)
+
+`stringify` returns `undefined` rather than a string when `value` itself is not serializable, which is the case for
+`undefined`, functions, and symbols. Non-serializable values _nested_ within `value` always produce a string: keys on
+objects are omitted, and entries in arrays become `null`.
 
 ## Importing
 

@@ -321,3 +321,106 @@ describe('key references', () => {
     });
   });
 });
+
+describe('circular references with stable keys', () => {
+  test('should handle a cycle pointing at a nested object rather than the root', () => {
+    const object: any = { x: {} };
+
+    object.x.y = object.x;
+
+    expect(stringify(object, { stable: true })).toEqual('{"x":{"y":"[ref=.x]"}}');
+  });
+
+  test('should handle a deeply nested cycle', () => {
+    const object: any = { foo: 'bar', deeply: { recursive: { object: {} } } };
+
+    object.deeply.recursive.object = object.deeply.recursive;
+
+    expect(stringify(object, { stable: true })).toEqual(
+      '{"deeply":{"recursive":{"object":"[ref=.deeply.recursive]"}},"foo":"bar"}',
+    );
+  });
+
+  test('should handle a cycle several levels above the reference', () => {
+    const object: any = { a: { b: { c: {} } } };
+
+    object.a.b.c.back = object.a.b;
+
+    expect(stringify(object, { stable: true })).toEqual('{"a":{"b":{"c":{"back":"[ref=.a.b]"}}}}');
+  });
+
+  test('should resolve sibling cycles to their own paths', () => {
+    const self: any = {};
+
+    self.me = self;
+
+    expect(stringify({ p: self, q: self }, { stable: true })).toEqual('{"p":{"me":"[ref=.p]"},"q":{"me":"[ref=.q]"}}');
+  });
+
+  test('should handle cyclic values held in an array', () => {
+    const self: any = { n: 1 };
+
+    self.self = self;
+
+    expect(stringify({ list: [self, self] }, { stable: true })).toEqual(
+      '{"list":[{"n":1,"self":"[ref=.list.0]"},{"n":1,"self":"[ref=.list.1]"}]}',
+    );
+  });
+
+  test('should produce the same reference keys as the unstable equivalent', () => {
+    const build = () => {
+      const object: any = { b: { c: {} }, a: 1 };
+
+      object.b.c.up = object.b;
+
+      return object;
+    };
+
+    expect(stringify(build(), { stable: true })).toEqual('{"a":1,"b":{"c":{"up":"[ref=.b]"}}}');
+    expect(stringify(build())).toEqual('{"b":{"c":{"up":"[ref=.b]"}},"a":1}');
+  });
+
+  test('should support a custom circular replacer', () => {
+    const object: any = { x: {} };
+
+    object.x.y = object.x;
+
+    expect(
+      stringify(object, {
+        stable: true,
+        circularReplacer: (_key: string, _value: any, referenceKey: string) => referenceKey,
+      }),
+    ).toEqual('{"x":{"y":".x"}}');
+  });
+});
+
+describe('non-serializable values', () => {
+  test('should return undefined when the value itself is not serializable', () => {
+    /* eslint-disable @typescript-eslint/no-confusing-void-expression -- the annotations are the
+       assertion; `npm run typecheck` fails if the overloads regress. */
+    const undefinedResult: undefined = stringify(undefined);
+    const functionResult: undefined = stringify(() => undefined);
+    const symbolResult: undefined = stringify(Symbol('key'));
+    /* eslint-enable @typescript-eslint/no-confusing-void-expression */
+    const stringResult: string = stringify({ a: 1 });
+
+    expect(undefinedResult).toBeUndefined();
+    expect(functionResult).toBeUndefined();
+    expect(symbolResult).toBeUndefined();
+    expect(stringResult).toEqual('{"a":1}');
+  });
+
+  test('should omit non-serializable object properties', () => {
+    expect(stringify({ a: 1, b: undefined, c: () => undefined, d: Symbol('key') })).toEqual('{"a":1}');
+  });
+
+  test('should convert non-serializable array entries to null', () => {
+    expect(stringify([1, undefined, () => undefined, 4])).toEqual('[1,null,null,4]');
+  });
+});
+
+describe('indentation', () => {
+  test('should support a string indent', () => {
+    expect(stringify({ a: 1 }, { indent: '\t' })).toEqual(JSON.stringify({ a: 1 }, null, '\t'));
+  });
+});
