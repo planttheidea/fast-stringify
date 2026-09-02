@@ -424,3 +424,64 @@ describe('indentation', () => {
     expect(stringify({ a: 1 }, { indent: '\t' })).toEqual(JSON.stringify({ a: 1 }, null, '\t'));
   });
 });
+
+describe('ambiguous reference keys', () => {
+  test('should distinguish a key containing a separator from real nesting', () => {
+    const dotted: any = { 'x.y': { z: {} } };
+    const nested: any = { x: { y: { z: {} } } };
+
+    dotted['x.y'].z.back = dotted['x.y'];
+    nested.x.y.z.back = nested.x.y;
+
+    expect(stringify(dotted)).toEqual('{"x.y":{"z":{"back":"[ref=.\\"x.y\\"]"}}}');
+    expect(stringify(nested)).toEqual('{"x":{"y":{"z":{"back":"[ref=.x.y]"}}}}');
+  });
+
+  test('should distinguish an empty key from the root', () => {
+    const root: any = { a: 1 };
+    const empty: any = { '': {} };
+
+    root.self = root;
+    empty[''].self = empty[''];
+
+    expect(stringify(root)).toEqual('{"a":1,"self":"[ref=.]"}');
+    expect(stringify(empty)).toEqual('{"":{"self":"[ref=.\\"\\"]"}}');
+  });
+
+  test('should escape quotes and backslashes within a quoted key', () => {
+    const quoted: any = { 'a"b': {} };
+    const escaped: any = { 'a\\b': {} };
+
+    quoted['a"b'].self = quoted['a"b'];
+    escaped['a\\b'].self = escaped['a\\b'];
+
+    expect(stringify(quoted)).toEqual('{"a\\"b":{"self":"[ref=.\\"a\\\\\\"b\\"]"}}');
+    expect(stringify(escaped)).toEqual('{"a\\\\b":{"self":"[ref=.\\"a\\\\\\\\b\\"]"}}');
+  });
+
+  test('should leave ordinary keys unquoted', () => {
+    const object: any = { a: { 'x.y': { b: {} } } };
+
+    object.a['x.y'].b.back = object.a['x.y'];
+
+    expect(stringify(object)).toEqual('{"a":{"x.y":{"b":{"back":"[ref=.a.\\"x.y\\"]"}}}}');
+  });
+
+  test('should apply the same quoting with stable keys', () => {
+    const object: any = { 'x.y': { z: {} } };
+
+    object['x.y'].z.back = object['x.y'];
+
+    expect(stringify(object, { stable: true })).toEqual('{"x.y":{"z":{"back":"[ref=.\\"x.y\\"]"}}}');
+  });
+
+  test('should pass the quoted key to a custom circular replacer', () => {
+    const object: any = { 'x.y': { z: {} } };
+
+    object['x.y'].z.back = object['x.y'];
+
+    expect(
+      stringify(object, { circularReplacer: (_key: string, _value: any, referenceKey: string) => referenceKey }),
+    ).toEqual('{"x.y":{"z":{"back":".\\"x.y\\""}}}');
+  });
+});

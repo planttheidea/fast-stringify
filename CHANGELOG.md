@@ -10,6 +10,10 @@
 
 ### Bug fixes
 
+- Fixed reference keys that could not identify the value they pointed at. A key containing the `.` separator produced
+  the same path as genuine nesting (`{ 'x.y': ... }` and `{ x: { y: ... } }` both gave `[ref=.x.y]`), and an empty key
+  produced the same path as the root. Keys that would be ambiguous left bare are now quoted as JSON strings, which also
+  escapes any quotes or backslashes within them. Paths made up of ordinary keys are unchanged.
 - Fixed circular reference detection when the `stable` option is used. Previously only cycles pointing back at the root
   object were detected; a cycle pointing at any nested object either threw
   `RangeError: Maximum call stack size exceeded` or silently emitted the referenced object an extra time instead of a

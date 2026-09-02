@@ -16,7 +16,9 @@ interface BaseOptions {
      * Custom replacer function for circular reference values.
      *
      * If not provided, circular references are replaced with `[ref=##]` where `##` is a
-     * dot-separated path to the original reference (e.g. `[ref=.nested.obj]`).
+     * dot-separated path to the original reference (e.g. `[ref=.nested.obj]`). Keys that would be
+     * ambiguous left bare, because they are empty or contain a `.`, `"`, or `\`, are quoted as JSON
+     * strings (e.g. `[ref=.nested."obj.name"]`).
      */
     circularReplacer?: CircularReplacer;
     /**

@@ -19,7 +19,9 @@ interface BaseOptions {
    * Custom replacer function for circular reference values.
    *
    * If not provided, circular references are replaced with `[ref=##]` where `##` is a
-   * dot-separated path to the original reference (e.g. `[ref=.nested.obj]`).
+   * dot-separated path to the original reference (e.g. `[ref=.nested.obj]`). Keys that would be
+   * ambiguous left bare, because they are empty or contain a `.`, `"`, or `\`, are quoted as JSON
+   * strings (e.g. `[ref=.nested."obj.name"]`).
    */
   circularReplacer?: CircularReplacer;
   /**
@@ -153,7 +155,7 @@ export function stringify(
         const valueCutoff = sources.indexOf(value) + 1;
 
         if (valueCutoff > 0) {
-          const referenceKey = keys.slice(0, valueCutoff).join('.') || '.';
+          const referenceKey = getReferenceKey(keys, valueCutoff);
 
           return circularReplacer
             ? circularReplacer.call(this, key, value, referenceKey)
@@ -175,6 +177,31 @@ export function stringify(
     },
     indent,
   );
+}
+
+/**
+ * Keys that would be ambiguous left bare in a dot-separated path: an empty key, or one containing
+ * the separator itself or the quoting characters.
+ */
+const AMBIGUOUS_KEY = /^$|[."\\]/;
+
+/**
+ * Build the dot-separated path leading to the value at `cutoff` in the chain of ancestors. Keys
+ * that cannot be left bare are quoted as JSON strings, which both delimits them and escapes any
+ * quotes or backslashes they contain, so the path always identifies exactly one value.
+ */
+function getReferenceKey(keys: string[], cutoff: number) {
+  let referenceKey = '';
+
+  // `keys[0]` is the root's own key, which is always empty and is what produces the leading
+  // separator, so it is never quoted.
+  for (let index = 1; index < cutoff; index++) {
+    const key = keys[index]!;
+
+    referenceKey += '.' + (AMBIGUOUS_KEY.test(key) ? JSON.stringify(key) : key);
+  }
+
+  return referenceKey || '.';
 }
 
 function sortKeys(value: object, comparator: ((a: string, b: string) => number) | undefined) {

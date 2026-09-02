@@ -74,6 +74,13 @@ passed will customize how the string is compiled. Available options:
 - `circularReplacer` => function to customize how the circular value is stringified (defaults to `[ref=##]` where `##`
   is the `referenceKey`)
   - `referenceKey` is a dot-separated key list reflecting the nested key the object was originally declared at
+  - keys that would be ambiguous left bare, because they are empty or contain a `.`, `"`, or `\`, are quoted as JSON
+    strings, so the path always identifies exactly one value:
+
+    ```javascript
+    stringify(nested); // {"x":{"y":{"z":{"back":"[ref=.x.y]"}}}}
+    stringify(dotted); // {"x.y":{"z":{"back":"[ref=.\"x.y\"]"}}}
+    ```
 - `stable` => whether to sort the keys for stability
   - keys are sorted in ascending order by UTF-16 code unit, matching the default `Array.prototype.sort` ordering.
     Locale-aware comparison is deliberately not used, because it would make output vary between environments.
