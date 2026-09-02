@@ -19,13 +19,16 @@ interface BaseOptions {
    * Custom replacer function for circular reference values.
    *
    * If not provided, circular references are replaced with `[ref=##]` where `##` is a
-   * dot-separated path to the original reference (e.g. `[ref=.nested.obj]`).
+   * dot-separated path to the original reference (e.g. `[ref=.nested.obj]`). Keys that would be
+   * ambiguous left bare, because they are empty or contain a `.`, `"`, or `\`, are quoted as JSON
+   * strings (e.g. `[ref=.nested."obj.name"]`).
    */
   circularReplacer?: CircularReplacer;
   /**
-   * Number of spaces to use as white space for indenting.
+   * White space used when indenting, either as a number of spaces or as the literal string to
+   * indent with (e.g. `'\t'`).
    */
-  indent?: number;
+  indent?: number | string;
   /**
    * Custom replacer function for standard values.
    */
@@ -37,7 +40,9 @@ interface BaseOptions {
   /**
    * Custom stabilizer function for stable key ordering when the `stable` option is set to `true`.
    *
-   * If not provided, keys are sorted in ascending order using `String.prototype.localeCompare`.
+   * If not provided, keys are sorted in ascending order by UTF-16 code unit, which is the default
+   * `Array.prototype.sort` ordering. This is deliberate: locale-aware comparison would make output
+   * vary between environments, which defeats the purpose of stable ordering.
    */
   stabilizer?: Stabilizer;
 }
@@ -67,15 +72,35 @@ const DEFAULT_OPTIONS: Options = {};
 /**
  * Stringifier that handles circular values.
  */
+export function stringify(value: undefined | symbol | ((...args: any[]) => any), options?: Options): undefined;
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-export function stringify<Value>(
-  value: Value,
+export function stringify<Value>(value: Value, options?: Options): string;
+export function stringify(
+  value: unknown,
   { indent, replacer, circularReplacer, stable, stabilizer }: Options = DEFAULT_OPTIONS,
-): string {
-  const cache: any[] = [];
+): string | undefined {
+  // The chain of ancestors as `JSON.stringify` sees them, matched against `this`.
+  const holders: any[] = [];
+  // The chain of ancestors as the caller passed them, matched against incoming values. These
+  // diverge from `holders` whenever the object handed back to `JSON.stringify` is not the one
+  // received, which happens when `stable` sorts into a copy or a `replacer` swaps the value. When
+  // neither can happen the two chains are always identical, so they are aliased to avoid the
+  // bookkeeping entirely.
+  const tracksSources = !!stable || !!replacer;
+  const sources: any[] = tracksSources ? [] : holders;
+  // The key each entry in `holders` was reached under, so that a circular value can be reported
+  // as the path leading to it. Only written when an ancestor is added, since that is the only
+  // time it is ever read back.
   const keys: string[] = [];
 
   const sortComparator = stable && stabilizer ? getSortComparator(stabilizer) : undefined;
+
+  let pendingHolder: any;
+  let pendingSource: any;
+  // The key of the value most recently descended into. `JSON.stringify` walks depth first, so the
+  // next object handed back is always a property of that value, which makes this the key the
+  // ancestor about to be added was reached under.
+  let pendingKey = '';
 
   return JSON.stringify(
     value,
@@ -83,42 +108,67 @@ export function stringify<Value>(
       let value = rawValue;
 
       if (typeof value === 'object' && value !== null) {
-        if (cache.length) {
-          const thisCutoff = cache.indexOf(this) + 1;
-
-          if (thisCutoff === 0) {
-            cache[cache.length] = this;
-          } else {
-            cache.splice(thisCutoff);
-            keys.splice(thisCutoff);
+        if (holders.length === 0) {
+          if (tracksSources) {
+            sources[0] = value;
           }
 
-          keys[keys.length] = key;
-
-          const valueCutoff = cache.indexOf(value) + 1;
-
-          if (valueCutoff > 0) {
-            const referenceKey = keys.slice(0, valueCutoff).join('.') || '.';
-
-            return circularReplacer
-              ? circularReplacer.call(this, key, value, referenceKey)
-              : '[ref=' + referenceKey + ']';
-          }
-        } else {
-          cache[0] = value;
           keys[0] = key;
+          pendingKey = key;
+
+          if (stable && !Array.isArray(value)) {
+            const sorted = sortKeys(value as object, sortComparator?.(value));
+
+            pendingHolder = sorted;
+            pendingSource = value;
+            value = sorted;
+          }
+
+          // The root's entry in the chain must be whatever `JSON.stringify` actually descends
+          // into, which is the value returned here.
+          const rootValue = replacer ? replacer.call(this, key, value) : value;
+
+          holders[0] = rootValue;
+
+          return rootValue;
         }
 
-        if (stable && !Array.isArray(value)) {
-          const sortedKeys = Object.keys(value as object).sort(sortComparator?.(value));
-          const sorted: Record<string, any> = {};
+        const thisCutoff = holders.indexOf(this) + 1;
 
-          for (let index = 0; index < sortedKeys.length; index++) {
-            const sortedKey = sortedKeys[index]!;
+        if (thisCutoff === 0) {
+          const length = holders.length;
 
-            sorted[sortedKey] = value[sortedKey];
+          holders[length] = this;
+          keys[length] = pendingKey;
+
+          if (tracksSources) {
+            sources[length] = this === pendingHolder ? pendingSource : this;
           }
+        } else if (thisCutoff !== holders.length) {
+          holders.length = thisCutoff;
 
+          if (tracksSources) {
+            sources.length = thisCutoff;
+          }
+        }
+
+        const valueCutoff = sources.indexOf(value) + 1;
+
+        if (valueCutoff > 0) {
+          const referenceKey = getReferenceKey(keys, valueCutoff);
+
+          return circularReplacer
+            ? circularReplacer.call(this, key, value, referenceKey)
+            : '[ref=' + referenceKey + ']';
+        }
+
+        pendingKey = key;
+
+        if (stable && !Array.isArray(value)) {
+          const sorted = sortKeys(value as object, sortComparator?.(value));
+
+          pendingHolder = sorted;
+          pendingSource = value;
           value = sorted;
         }
       }
@@ -127,6 +177,44 @@ export function stringify<Value>(
     },
     indent,
   );
+}
+
+/**
+ * Keys that would be ambiguous left bare in a dot-separated path: an empty key, or one containing
+ * the separator itself or the quoting characters.
+ */
+const AMBIGUOUS_KEY = /^$|[."\\]/;
+
+/**
+ * Build the dot-separated path leading to the value at `cutoff` in the chain of ancestors. Keys
+ * that cannot be left bare are quoted as JSON strings, which both delimits them and escapes any
+ * quotes or backslashes they contain, so the path always identifies exactly one value.
+ */
+function getReferenceKey(keys: string[], cutoff: number) {
+  let referenceKey = '';
+
+  // `keys[0]` is the root's own key, which is always empty and is what produces the leading
+  // separator, so it is never quoted.
+  for (let index = 1; index < cutoff; index++) {
+    const key = keys[index]!;
+
+    referenceKey += '.' + (AMBIGUOUS_KEY.test(key) ? JSON.stringify(key) : key);
+  }
+
+  return referenceKey || '.';
+}
+
+function sortKeys(value: object, comparator: ((a: string, b: string) => number) | undefined) {
+  const sortedKeys = Object.keys(value).sort(comparator);
+  const sorted: Record<string, any> = {};
+
+  for (let index = 0; index < sortedKeys.length; index++) {
+    const sortedKey = sortedKeys[index]!;
+
+    sorted[sortedKey] = (value as Record<string, any>)[sortedKey];
+  }
+
+  return sorted;
 }
 
 function getSortComparator(stabilizer: Stabilizer) {

@@ -4,7 +4,7 @@ A tiny, [blazing fast](#benchmarks) stringifier that safely handles circular obj
 
 The fastest way to stringify an object will always be the native `JSON.stringify`, but it does not support circular
 objects out of the box. If you need to stringify objects that have circular references, `fast-stringify` is there for
-you! It hsa a simple API to allow for several use-cases that `JSON.stringify` does not while also maintaining blazing
+you! It has a simple API to allow for several use-cases that `JSON.stringify` does not while also maintaining blazing
 fast performance compared to its peers.
 
 ## Table of contents
@@ -47,7 +47,7 @@ console.log(stringify(object));
 ```ts
 interface Options {
   circularReplacer?: (key: string, value: any, referenceKey: string) => any;
-  indent?: number;
+  indent?: number | string;
   replacer?: (key: string, value: any) => any;
   stable?: boolean;
   stabilizer?: (
@@ -57,7 +57,8 @@ interface Options {
   ) => any;
 }
 
-function stringify(value: any, options?: Options): string;
+function stringify(value: undefined | symbol | ((...args: any[]) => any), options?: Options): undefined;
+function stringify<Value>(value: Value, options?: Options): string;
 ```
 
 Stringifies the object passed based on the options passed. The only required value is the `value`. The additional optons
@@ -66,14 +67,28 @@ passed will customize how the string is compiled. Available options:
 - `replacer` => function to customize how the non-circular value is stringified (see
   [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)
   for more details)
-- `indent` => number of spaces to indent the stringified object for pretty-printing (see
+- `indent` => white space used to indent the stringified object for pretty-printing, either as a number of spaces or as
+  the literal string to indent with (see
   [the documentation for JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)
   for more details)
 - `circularReplacer` => function to customize how the circular value is stringified (defaults to `[ref=##]` where `##`
   is the `referenceKey`)
   - `referenceKey` is a dot-separated key list reflecting the nested key the object was originally declared at
+  - keys that would be ambiguous left bare, because they are empty or contain a `.`, `"`, or `\`, are quoted as JSON
+    strings, so the path always identifies exactly one value:
+
+    ```javascript
+    stringify(nested); // {"x":{"y":{"z":{"back":"[ref=.x.y]"}}}}
+    stringify(dotted); // {"x.y":{"z":{"back":"[ref=.\"x.y\"]"}}}
+    ```
 - `stable` => whether to sort the keys for stability
+  - keys are sorted in ascending order by UTF-16 code unit, matching the default `Array.prototype.sort` ordering.
+    Locale-aware comparison is deliberately not used, because it would make output vary between environments.
 - `stabilizer` => function to customize how the stable object is sorted (only applies when `stable` is `true`)
+
+`stringify` returns `undefined` rather than a string when `value` itself is not serializable, which is the case for
+`undefined`, functions, and symbols. Non-serializable values _nested_ within `value` always produce a string: keys on
+objects are omitted, and entries in arrays become `null`.
 
 ## Importing
 
@@ -93,14 +108,14 @@ const { stringify } = require('fast-stringify');
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 1369863 │ '± 0.01%'       │
-│ faster-stable-stringify    │ 1004016 │ '± 0.02%'       │
-│ fast-json-stable-stringify │ 908265  │ '± 0.02%'       │
-│ json-stringify-safe        │ 754147  │ '± 0.02%'       │
-│ json-stable-stringify      │ 656167  │ '± 0.02%'       │
-│ decircularize              │ 459981  │ '± 0.03%'       │
-│ superjson                  │ 266311  │ '± 0.03%'       │
-│ json-cycle                 │ 6613    │ '± 0.11%'       │
+│ fast-stringify             │ 1385041 │ '± 0.01%'       │
+│ faster-stable-stringify    │ 1036269 │ '± 0.02%'       │
+│ fast-json-stable-stringify │ 1025641 │ '± 0.02%'       │
+│ json-stringify-safe        │ 840336  │ '± 0.02%'       │
+│ json-stable-stringify      │ 713266  │ '± 0.02%'       │
+│ decircularize              │ 468823  │ '± 0.03%'       │
+│ superjson                  │ 272034  │ '± 0.03%'       │
+│ json-cycle                 │ 6976    │ '± 0.09%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
 ```
@@ -111,14 +126,14 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 203873  │ '± 0.03%'       │
-│ fast-json-stable-stringify │ 192012  │ '± 0.03%'       │
-│ faster-stable-stringify    │ 178094  │ '± 0.03%'       │
-│ json-stringify-safe        │ 144341  │ '± 0.03%'       │
-│ json-stable-stringify      │ 116090  │ '± 0.04%'       │
-│ decircularize              │ 62593   │ '± 0.06%'       │
-│ superjson                  │ 41663   │ '± 0.06%'       │
-│ json-cycle                 │ 1096    │ '± 0.13%'       │
+│ fast-stringify             │ 227583  │ '± 0.05%'       │
+│ fast-json-stable-stringify │ 193535  │ '± 0.05%'       │
+│ faster-stable-stringify    │ 176553  │ '± 0.06%'       │
+│ json-stringify-safe        │ 142146  │ '± 0.07%'       │
+│ json-stable-stringify      │ 112246  │ '± 0.08%'       │
+│ decircularize              │ 61656   │ '± 0.10%'       │
+│ superjson                  │ 42057   │ '± 0.11%'       │
+│ json-cycle                 │ 1038    │ '± 0.62%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
 ```
@@ -129,14 +144,14 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 167056  │ '± 0.02%'       │
-│ fast-json-stable-stringify │ 165207  │ '± 0.04%'       │
-│ faster-stable-stringify    │ 152811  │ '± 0.04%'       │
-│ json-stringify-safe        │ 125000  │ '± 0.03%'       │
-│ json-stable-stringify      │ 102186  │ '± 0.05%'       │
-│ decircularize              │ 56053   │ '± 0.06%'       │
-│ superjson                  │ 33646   │ '± 0.07%'       │
-│ json-cycle                 │ 1007    │ '± 0.19%'       │
+│ fast-stringify             │ 174703  │ '± 0.04%'       │
+│ fast-json-stable-stringify │ 151906  │ '± 0.07%'       │
+│ faster-stable-stringify    │ 143843  │ '± 0.07%'       │
+│ json-stringify-safe        │ 105218  │ '± 0.11%'       │
+│ json-stable-stringify      │ 87382   │ '± 0.07%'       │
+│ decircularize              │ 52408   │ '± 0.10%'       │
+│ superjson                  │ 30303   │ '± 0.13%'       │
+│ json-cycle                 │ 972     │ '± 0.20%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
 ```
@@ -147,14 +162,14 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 78149   │ '± 0.04%'       │
-│ json-stringify-safe        │ 56811   │ '± 0.05%'       │
-│ fast-json-stable-stringify │ 54887   │ '± 0.06%'       │
-│ faster-stable-stringify    │ 49870   │ '± 0.06%'       │
-│ json-stable-stringify      │ 35918   │ '± 0.07%'       │
-│ decircularize              │ 22035   │ '± 0.08%'       │
-│ superjson                  │ 15173   │ '± 0.11%'       │
-│ json-cycle                 │ 389     │ '± 0.14%'       │
+│ fast-stringify             │ 81506   │ '± 0.05%'       │
+│ json-stringify-safe        │ 54552   │ '± 0.09%'       │
+│ fast-json-stable-stringify │ 51421   │ '± 0.10%'       │
+│ faster-stable-stringify    │ 47982   │ '± 0.10%'       │
+│ json-stable-stringify      │ 34450   │ '± 0.11%'       │
+│ decircularize              │ 20153   │ '± 0.13%'       │
+│ superjson                  │ 14992   │ '± 0.16%'       │
+│ json-cycle                 │ 384     │ '± 0.11%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
 ```
@@ -165,10 +180,10 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-json-stable-stringify │ 724112  │ '± 0.02%'       │
-│ faster-stable-stringify    │ 704225  │ '± 0.03%'       │
-│ fast-stringify             │ 576368  │ '± 0.02%'       │
-│ json-stable-stringify      │ 426075  │ '± 0.03%'       │
+│ fast-json-stable-stringify │ 699300  │ '± 0.03%'       │
+│ faster-stable-stringify    │ 679347  │ '± 0.04%'       │
+│ fast-stringify             │ 580383  │ '± 0.03%'       │
+│ json-stable-stringify      │ 415454  │ '± 0.04%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-json-stable-stringify".
 ```
@@ -179,10 +194,10 @@ Fastest was "fast-json-stable-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-json-stable-stringify │ 498256  │ '± 0.03%'       │
-│ faster-stable-stringify    │ 487092  │ '± 0.03%'       │
-│ fast-stringify             │ 408830  │ '± 0.02%'       │
-│ json-stable-stringify      │ 315159  │ '± 0.03%'       │
+│ faster-stable-stringify    │ 440722  │ '± 0.04%'       │
+│ fast-json-stable-stringify │ 430848  │ '± 0.04%'       │
+│ fast-stringify             │ 358166  │ '± 0.04%'       │
+│ json-stable-stringify      │ 275938  │ '± 0.05%'       │
 └────────────────────────────┴─────────┴─────────────────┘
-Fastest was "fast-json-stable-stringify".
+Fastest was "faster-stable-stringify".
 ```

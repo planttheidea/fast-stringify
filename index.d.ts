@@ -16,13 +16,16 @@ interface BaseOptions {
      * Custom replacer function for circular reference values.
      *
      * If not provided, circular references are replaced with `[ref=##]` where `##` is a
-     * dot-separated path to the original reference (e.g. `[ref=.nested.obj]`).
+     * dot-separated path to the original reference (e.g. `[ref=.nested.obj]`). Keys that would be
+     * ambiguous left bare, because they are empty or contain a `.`, `"`, or `\`, are quoted as JSON
+     * strings (e.g. `[ref=.nested."obj.name"]`).
      */
     circularReplacer?: CircularReplacer;
     /**
-     * Number of spaces to use as white space for indenting.
+     * White space used when indenting, either as a number of spaces or as the literal string to
+     * indent with (e.g. `'\t'`).
      */
-    indent?: number;
+    indent?: number | string;
     /**
      * Custom replacer function for standard values.
      */
@@ -34,7 +37,9 @@ interface BaseOptions {
     /**
      * Custom stabilizer function for stable key ordering when the `stable` option is set to `true`.
      *
-     * If not provided, keys are sorted in ascending order using `String.prototype.localeCompare`.
+     * If not provided, keys are sorted in ascending order by UTF-16 code unit, which is the default
+     * `Array.prototype.sort` ordering. This is deliberate: locale-aware comparison would make output
+     * vary between environments, which defeats the purpose of stable ordering.
      */
     stabilizer?: Stabilizer;
 }
@@ -54,7 +59,8 @@ type Options = SimpleOptions | StableOptions | UnstableOptions;
 /**
  * Stringifier that handles circular values.
  */
-declare function stringify<Value>(value: Value, { indent, replacer, circularReplacer, stable, stabilizer }?: Options): string;
+declare function stringify(value: undefined | symbol | ((...args: any[]) => any), options?: Options): undefined;
+declare function stringify<Value>(value: Value, options?: Options): string;
 
 export { stringify };
 export type { CircularReplacer, Options, Replacer, Stabilizer };

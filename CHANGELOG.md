@@ -1,5 +1,28 @@
 # fast-stringify CHANGELOG
 
+## 4.0.2
+
+### Performance
+
+- [#90](https://github.com/planttheidea/fast-stringify/pull/90) - Reduced per-value bookkeeping during object traversal
+  by recording paths only when ancestors are added to the chain.
+
+### Bug fixes
+
+- [#90](https://github.com/planttheidea/fast-stringify/pull/90) - Fixed ambiguous reference keys for dotted and empty
+  property names. Ambiguous keys are now JSON-quoted and escaped.
+- [#90](https://github.com/planttheidea/fast-stringify/pull/90) - Fixed circular reference detection with stable,
+  including cycles to nested objects. Sorted object copies are now correctly matched to their original ancestors.
+
+### Other changes
+
+- `stringify` now declares an overload returning `undefined` for values that cannot be serialized on their own
+  (`undefined`, functions, and symbols), which matches its runtime behavior. Values nested within an object or array are
+  unaffected, and still return a string.
+- `indent` now accepts a string as well as a number, matching `JSON.stringify`'s `space` argument.
+- Corrected documentation of the default `stable` key ordering, which sorts by UTF-16 code unit rather than using
+  `String.prototype.localeCompare`.
+
 ## 4.0.1
 
 - [#89](https://github.com/planttheidea/fast-stringify/pull/89) - Improve closure cost for stabilizer
