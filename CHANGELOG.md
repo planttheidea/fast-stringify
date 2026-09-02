@@ -4,21 +4,15 @@
 
 ### Performance
 
-- Reduced the per-value bookkeeping done while walking the object. The key path leading to a value is now recorded only
-  when an ancestor is added to the chain rather than on every value, and the root is handled outside the walk, which
-  more than pays back the cost of the fix below.
+- [#90](https://github.com/planttheidea/fast-stringify/pull/90) - Reduced per-value bookkeeping during object traversal
+  by recording paths only when ancestors are added to the chain.
 
 ### Bug fixes
 
-- Fixed reference keys that could not identify the value they pointed at. A key containing the `.` separator produced
-  the same path as genuine nesting (`{ 'x.y': ... }` and `{ x: { y: ... } }` both gave `[ref=.x.y]`), and an empty key
-  produced the same path as the root. Keys that would be ambiguous left bare are now quoted as JSON strings, which also
-  escapes any quotes or backslashes within them. Paths made up of ordinary keys are unchanged.
-- Fixed circular reference detection when the `stable` option is used. Previously only cycles pointing back at the root
-  object were detected; a cycle pointing at any nested object either threw
-  `RangeError: Maximum call stack size exceeded` or silently emitted the referenced object an extra time instead of a
-  reference key. This happened because `stable` hands `JSON.stringify` a sorted copy of each object, so the chain of
-  ancestors being tracked held copies while incoming values were the originals.
+- [#90](https://github.com/planttheidea/fast-stringify/pull/90) - Fixed ambiguous reference keys for dotted and empty
+  property names. Ambiguous keys are now JSON-quoted and escaped.
+- [#90](https://github.com/planttheidea/fast-stringify/pull/90) - Fixed circular reference detection with stable,
+  including cycles to nested objects. Sorted object copies are now correctly matched to their original ancestors.
 
 ### Other changes
 
