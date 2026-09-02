@@ -101,14 +101,14 @@ const { stringify } = require('fast-stringify');
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 1369863 │ '± 0.01%'       │
-│ faster-stable-stringify    │ 1004016 │ '± 0.02%'       │
-│ fast-json-stable-stringify │ 908265  │ '± 0.02%'       │
-│ json-stringify-safe        │ 754147  │ '± 0.02%'       │
-│ json-stable-stringify      │ 656167  │ '± 0.02%'       │
-│ decircularize              │ 459981  │ '± 0.03%'       │
-│ superjson                  │ 266311  │ '± 0.03%'       │
-│ json-cycle                 │ 6613    │ '± 0.11%'       │
+│ fast-stringify             │ 1305483 │ '± 0.01%'       │
+│ faster-stable-stringify    │ 1070663 │ '± 0.03%'       │
+│ fast-json-stable-stringify │ 1005025 │ '± 0.03%'       │
+│ json-stringify-safe        │ 791765  │ '± 0.03%'       │
+│ json-stable-stringify      │ 694444  │ '± 0.03%'       │
+│ decircularize              │ 438981  │ '± 0.04%'       │
+│ superjson                  │ 245459  │ '± 0.06%'       │
+│ json-cycle                 │ 6406    │ '± 0.21%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
 ```
@@ -119,14 +119,14 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 203873  │ '± 0.03%'       │
-│ fast-json-stable-stringify │ 192012  │ '± 0.03%'       │
-│ faster-stable-stringify    │ 178094  │ '± 0.03%'       │
-│ json-stringify-safe        │ 144341  │ '± 0.03%'       │
-│ json-stable-stringify      │ 116090  │ '± 0.04%'       │
-│ decircularize              │ 62593   │ '± 0.06%'       │
-│ superjson                  │ 41663   │ '± 0.06%'       │
-│ json-cycle                 │ 1096    │ '± 0.13%'       │
+│ fast-stringify             │ 228623  │ '± 0.03%'       │
+│ fast-json-stable-stringify │ 190657  │ '± 0.06%'       │
+│ faster-stable-stringify    │ 174003  │ '± 0.06%'       │
+│ json-stringify-safe        │ 143698  │ '± 0.06%'       │
+│ json-stable-stringify      │ 113430  │ '± 0.07%'       │
+│ decircularize              │ 60474   │ '± 0.10%'       │
+│ superjson                  │ 42793   │ '± 0.10%'       │
+│ json-cycle                 │ 1075    │ '± 0.22%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
 ```
@@ -137,14 +137,14 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 167056  │ '± 0.02%'       │
-│ fast-json-stable-stringify │ 165207  │ '± 0.04%'       │
-│ faster-stable-stringify    │ 152811  │ '± 0.04%'       │
-│ json-stringify-safe        │ 125000  │ '± 0.03%'       │
-│ json-stable-stringify      │ 102186  │ '± 0.05%'       │
-│ decircularize              │ 56053   │ '± 0.06%'       │
-│ superjson                  │ 33646   │ '± 0.07%'       │
-│ json-cycle                 │ 1007    │ '± 0.19%'       │
+│ fast-stringify             │ 183519  │ '± 0.04%'       │
+│ fast-json-stable-stringify │ 156372  │ '± 0.07%'       │
+│ faster-stable-stringify    │ 150852  │ '± 0.06%'       │
+│ json-stringify-safe        │ 121862  │ '± 0.07%'       │
+│ json-stable-stringify      │ 102092  │ '± 0.07%'       │
+│ decircularize              │ 54803   │ '± 0.09%'       │
+│ superjson                  │ 33370   │ '± 0.14%'       │
+│ json-cycle                 │ 1008    │ '± 0.20%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
 ```
@@ -155,14 +155,14 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-stringify             │ 78149   │ '± 0.04%'       │
-│ json-stringify-safe        │ 56811   │ '± 0.05%'       │
-│ fast-json-stable-stringify │ 54887   │ '± 0.06%'       │
-│ faster-stable-stringify    │ 49870   │ '± 0.06%'       │
-│ json-stable-stringify      │ 35918   │ '± 0.07%'       │
-│ decircularize              │ 22035   │ '± 0.08%'       │
-│ superjson                  │ 15173   │ '± 0.11%'       │
-│ json-cycle                 │ 389     │ '± 0.14%'       │
+│ fast-stringify             │ 76988   │ '± 0.08%'       │
+│ json-stringify-safe        │ 53795   │ '± 0.08%'       │
+│ fast-json-stable-stringify │ 50691   │ '± 0.12%'       │
+│ faster-stable-stringify    │ 46390   │ '± 0.11%'       │
+│ json-stable-stringify      │ 33267   │ '± 0.15%'       │
+│ decircularize              │ 20694   │ '± 0.17%'       │
+│ superjson                  │ 14490   │ '± 0.18%'       │
+│ json-cycle                 │ 365     │ '± 0.32%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-stringify".
 ```
@@ -173,10 +173,10 @@ Fastest was "fast-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-json-stable-stringify │ 724112  │ '± 0.02%'       │
-│ faster-stable-stringify    │ 704225  │ '± 0.03%'       │
-│ fast-stringify             │ 576368  │ '± 0.02%'       │
-│ json-stable-stringify      │ 426075  │ '± 0.03%'       │
+│ fast-json-stable-stringify │ 696864  │ '± 0.03%'       │
+│ faster-stable-stringify    │ 678426  │ '± 0.04%'       │
+│ fast-stringify             │ 580383  │ '± 0.03%'       │
+│ json-stable-stringify      │ 405679  │ '± 0.05%'       │
 └────────────────────────────┴─────────┴─────────────────┘
 Fastest was "fast-json-stable-stringify".
 ```
@@ -187,10 +187,10 @@ Fastest was "fast-json-stable-stringify".
 ┌────────────────────────────┬─────────┬─────────────────┐
 │ (index)                    │ Ops/sec │ Margin of error │
 ├────────────────────────────┼─────────┼─────────────────┤
-│ fast-json-stable-stringify │ 498256  │ '± 0.03%'       │
-│ faster-stable-stringify    │ 487092  │ '± 0.03%'       │
-│ fast-stringify             │ 408830  │ '± 0.02%'       │
-│ json-stable-stringify      │ 315159  │ '± 0.03%'       │
+│ faster-stable-stringify    │ 502008  │ '± 0.04%'       │
+│ fast-json-stable-stringify │ 496770  │ '± 0.04%'       │
+│ fast-stringify             │ 412541  │ '± 0.04%'       │
+│ json-stable-stringify      │ 311429  │ '± 0.05%'       │
 └────────────────────────────┴─────────┴─────────────────┘
-Fastest was "fast-json-stable-stringify".
+Fastest was "faster-stable-stringify".
 ```

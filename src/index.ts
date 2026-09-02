@@ -86,12 +86,19 @@ export function stringify(
   // bookkeeping entirely.
   const tracksSources = !!stable || !!replacer;
   const sources: any[] = tracksSources ? [] : holders;
+  // The key each entry in `holders` was reached under, so that a circular value can be reported
+  // as the path leading to it. Only written when an ancestor is added, since that is the only
+  // time it is ever read back.
   const keys: string[] = [];
 
   const sortComparator = stable && stabilizer ? getSortComparator(stabilizer) : undefined;
 
   let pendingHolder: any;
   let pendingSource: any;
+  // The key of the value most recently descended into. `JSON.stringify` walks depth first, so the
+  // next object handed back is always a property of that value, which makes this the key the
+  // ancestor about to be added was reached under.
+  let pendingKey = '';
 
   return JSON.stringify(
     value,
@@ -99,64 +106,22 @@ export function stringify(
       let value = rawValue;
 
       if (typeof value === 'object' && value !== null) {
-        const isRoot = holders.length === 0;
-
-        if (isRoot) {
+        if (holders.length === 0) {
           if (tracksSources) {
             sources[0] = value;
           }
 
           keys[0] = key;
-        } else {
-          const thisCutoff = holders.indexOf(this) + 1;
+          pendingKey = key;
 
-          if (thisCutoff === 0) {
-            const length = holders.length;
+          if (stable && !Array.isArray(value)) {
+            const sorted = sortKeys(value as object, sortComparator?.(value));
 
-            holders[length] = this;
-
-            if (tracksSources) {
-              sources[length] = this === pendingHolder ? pendingSource : this;
-            }
-          } else {
-            holders.length = thisCutoff;
-            keys.length = thisCutoff;
-
-            if (tracksSources) {
-              sources.length = thisCutoff;
-            }
+            pendingHolder = sorted;
+            pendingSource = value;
+            value = sorted;
           }
 
-          keys[keys.length] = key;
-
-          const valueCutoff = sources.indexOf(value) + 1;
-
-          if (valueCutoff > 0) {
-            const referenceKey = keys.slice(0, valueCutoff).join('.') || '.';
-
-            return circularReplacer
-              ? circularReplacer.call(this, key, value, referenceKey)
-              : '[ref=' + referenceKey + ']';
-          }
-        }
-
-        if (stable && !Array.isArray(value)) {
-          const sortedKeys = Object.keys(value as object).sort(sortComparator?.(value));
-          const sorted: Record<string, any> = {};
-
-          for (let index = 0; index < sortedKeys.length; index++) {
-            const sortedKey = sortedKeys[index]!;
-
-            sorted[sortedKey] = (value as Record<string, any>)[sortedKey];
-          }
-
-          pendingHolder = sorted;
-          pendingSource = value;
-
-          value = sorted;
-        }
-
-        if (isRoot) {
           // The root's entry in the chain must be whatever `JSON.stringify` actually descends
           // into, which is the value returned here.
           const rootValue = replacer ? replacer.call(this, key, value) : value;
@@ -165,12 +130,64 @@ export function stringify(
 
           return rootValue;
         }
+
+        const thisCutoff = holders.indexOf(this) + 1;
+
+        if (thisCutoff === 0) {
+          const length = holders.length;
+
+          holders[length] = this;
+          keys[length] = pendingKey;
+
+          if (tracksSources) {
+            sources[length] = this === pendingHolder ? pendingSource : this;
+          }
+        } else if (thisCutoff !== holders.length) {
+          holders.length = thisCutoff;
+
+          if (tracksSources) {
+            sources.length = thisCutoff;
+          }
+        }
+
+        const valueCutoff = sources.indexOf(value) + 1;
+
+        if (valueCutoff > 0) {
+          const referenceKey = keys.slice(0, valueCutoff).join('.') || '.';
+
+          return circularReplacer
+            ? circularReplacer.call(this, key, value, referenceKey)
+            : '[ref=' + referenceKey + ']';
+        }
+
+        pendingKey = key;
+
+        if (stable && !Array.isArray(value)) {
+          const sorted = sortKeys(value as object, sortComparator?.(value));
+
+          pendingHolder = sorted;
+          pendingSource = value;
+          value = sorted;
+        }
       }
 
       return replacer ? replacer.call(this, key, value) : value;
     },
     indent,
   );
+}
+
+function sortKeys(value: object, comparator: ((a: string, b: string) => number) | undefined) {
+  const sortedKeys = Object.keys(value).sort(comparator);
+  const sorted: Record<string, any> = {};
+
+  for (let index = 0; index < sortedKeys.length; index++) {
+    const sortedKey = sortedKeys[index]!;
+
+    sorted[sortedKey] = (value as Record<string, any>)[sortedKey];
+  }
+
+  return sorted;
 }
 
 function getSortComparator(stabilizer: Stabilizer) {

@@ -2,6 +2,12 @@
 
 ## 4.0.2
 
+### Performance
+
+- Reduced the per-value bookkeeping done while walking the object. The key path leading to a value is now recorded only
+  when an ancestor is added to the chain rather than on every value, and the root is handled outside the walk, which
+  more than pays back the cost of the fix below.
+
 ### Bug fixes
 
 - Fixed circular reference detection when the `stable` option is used. Previously only cycles pointing back at the root
