@@ -2,6 +2,34 @@ import * as React from 'react';
 import { describe, expect, test } from 'vitest';
 import { stringify } from '../src/index.js';
 
+test('stable ordering preserves an own __proto__ property', () => {
+  const value: object = JSON.parse('{"z":1,"__proto__":{"name":"data"},"a":2}');
+  expect(stringify(value, { stable: true })).toBe('{"__proto__":{"name":"data"},"a":2,"z":1}');
+});
+
+test('stable ordering serializes own __proto__ values with toJSON', () => {
+  const value = Object.create(null) as Record<string, unknown>;
+  value.__proto__ = { toJSON: () => 'replacement' };
+  value.data = 1;
+  expect(stringify(value, { stable: true })).toBe('{"__proto__":"replacement","data":1}');
+});
+
+test('stable ordering preserves ordinary objects for custom replacers', () => {
+  expect(
+    stringify(
+      { data: 1 },
+      {
+        stable: true,
+        replacer(key, value) {
+          if (key === '') expect(Object.getPrototypeOf(value)).toBe(Object.prototype);
+          if (key === 'data') expect(Object.getPrototypeOf(this)).toBe(Object.prototype);
+          return value;
+        },
+      },
+    ),
+  ).toBe('{"data":1}');
+});
+
 class Foo {
   value: string;
 

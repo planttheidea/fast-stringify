@@ -211,7 +211,16 @@ function sortKeys(value: object, comparator: ((a: string, b: string) => number) 
   for (let index = 0; index < sortedKeys.length; index++) {
     const sortedKey = sortedKeys[index]!;
 
-    sorted[sortedKey] = (value as Record<string, any>)[sortedKey];
+    if (sortedKey === '__proto__') {
+      Object.defineProperty(sorted, sortedKey, {
+        configurable: true,
+        enumerable: true,
+        value: (value as Record<string, any>)[sortedKey],
+        writable: true,
+      });
+    } else {
+      sorted[sortedKey] = (value as Record<string, any>)[sortedKey];
+    }
   }
 
   return sorted;
