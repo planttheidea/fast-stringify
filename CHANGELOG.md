@@ -1,5 +1,14 @@
 # fast-stringify CHANGELOG
 
+## 4.0.3
+
+### Bug fixes
+
+- [#92](https://github.com/planttheidea/fast-stringify/pull/92) - Fixed own `__proto__` properties being dropped when
+  `stable` is set. Previously the sorted copy had its prototype replaced instead, which meant the key was missing from
+  the output (so objects differing only by that key produced identical output), and custom replacers could observe
+  inherited values from it. [thanks @feritcemkahraman](https://github.com/feritcemkahraman)
+
 ## 4.0.2
 
 ### Performance
