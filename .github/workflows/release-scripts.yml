@@ -1,0 +1,72 @@
+name: Release scripts
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-scripts:
+    name: Validate release scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          # Auto-caching invokes `yarn` before corepack is enabled, which resolves to Yarn 1 and fails.
+          package-manager-cache: false
+
+      # Corepack is no longer bundled with Node 25+, so install it explicitly.
+      # Yarn version is resolved from the `packageManager` field in `package.json`.
+      - name: Setup Yarn
+        run: |
+          npm install --global corepack@latest
+          corepack enable
+          yarn --version
+
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v6
+        with:
+          path: .yarn/cache
+          key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            yarn-${{ runner.os }}-
+
+      - name: Install dependencies
+        id: install
+        run: yarn install --immutable
+
+      # Each check runs as long as install succeeded, so a single run reports every failing check.
+      - name: Format check
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: yarn format:check
+
+      - name: Typecheck
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: yarn typecheck
+
+      - name: Lint
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: yarn lint
+
+      - name: Test
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: yarn test
+
+      - name: Build
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: yarn build
